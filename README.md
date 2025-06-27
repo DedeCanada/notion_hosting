@@ -1,3 +1,6 @@
 # notion_hosting
+
 This is for all of my Notion hosting needs.
-Weather: https://dedecanada.github.io/notion_hosting/weather_widget.html
+
+
+<a href="[https://www.example.com](https://dedecanada.github.io/notion_hosting/weather_widget.html)">Weather Widget</a>
