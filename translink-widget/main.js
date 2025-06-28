@@ -3,6 +3,43 @@ const STOP_ID = getStopIdFromUrl();
 const ROUTE_ID = getRouteIdFromUrl();
 const FEED_URL = "https://translink-proxy.onrender.com/gtfs"; // Replace with your actual URL
 
+let stopNameMap = {};
+let routeNameMap = {};
+
+async function loadTransitData() {
+  const [stopsText, routesText] = await Promise.all([
+    fetch("stops.txt").then(res => res.text()),
+    fetch("routes.txt").then(res => res.text())
+  ]);
+
+  // Parse stops.txt
+  stopsText.split("\n").forEach(line => {
+    const [stop_id, stop_code, stop_name] = line.split(",");
+    if (stop_id && stop_name && stop_id !== "stop_id") {
+      stopNameMap[stop_id.trim()] = stop_name.trim();
+    }
+  });
+
+  // Parse routes.txt
+  routesText.split("\n").forEach(line => {
+    const [route_id, agency_id, route_short_name, route_long_name] = line.split(",");
+    if (route_id && route_short_name && route_id !== "route_id") {
+      routeNameMap[route_id.trim()] = route_short_name.trim(); // or route_long_name
+    }
+  });
+}
+
+function getStopName(stopId) {
+  if (!stopId || stopId === "NONE") return "NONE";
+  return stopNameMap[stopId] || "NOT FOUND";
+}
+
+function getRouteName(routeId) {
+  if (!routeId || routeId === "ALL") return "ALL";
+  return routeNameMap[routeId] || "NOT FOUND";
+}
+
+
 document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("stop-title").innerText = `Next Buses for Stop ${STOP_ID} (${ROUTE_ID})`;
 });
@@ -74,6 +111,9 @@ async function fetchBusTimes() {
           const departure = formatUnixTime(departureUnix);
           const arrivalDelay = stu.arrival?.delay;
           const departureDelay = stu.departure?.delay;
+
+          const stopName = getStopName(STOP_ID);
+          const routeName = getRouteName(ROUTE_ID);
       
           output.push(
             `Trip ID: ${tripUpdate.trip.tripId}
@@ -93,5 +133,8 @@ async function fetchBusTimes() {
     : "No upcoming buses for stop " + STOP_ID;
 }
 
-fetchBusTimes();
-setInterval(fetchBusTimes, 60000); // refresh every 60s
+(async () => {
+  await loadTransitData();
+  await fetchBusTimes();
+  setInterval(fetchBusTimes, 60000);
+})();
