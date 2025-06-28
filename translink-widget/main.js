@@ -2,6 +2,10 @@ const PROTO_FILE = "transit.proto";
 const STOP_ID = "63";
 const FEED_URL = "https://translink-proxy.onrender.com/gtfs"; // Replace with your actual URL
 
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("stop-title").innerText = `Next Buses for Stop ${STOP_ID}`;
+});
+
 async function fetchBusTimes() {
   const response = await fetch(FEED_URL);
   const buffer = await response.arrayBuffer();
