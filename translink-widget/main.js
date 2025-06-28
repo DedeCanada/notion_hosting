@@ -1,14 +1,20 @@
 const PROTO_FILE = "transit.proto";
 const STOP_ID = getStopIdFromUrl();
+const ROUTE_ID = getRouteIdFromUrl();
 const FEED_URL = "https://translink-proxy.onrender.com/gtfs"; // Replace with your actual URL
 
 document.addEventListener("DOMContentLoaded", () => {
-  document.getElementById("stop-title").innerText = `Next Buses for Stop ${STOP_ID}`;
+  document.getElementById("stop-title").innerText = `Next Buses for Stop ${STOP_ID} (${ROUTE_ID})`;
 });
 
 function getStopIdFromUrl() {
   const params = new URLSearchParams(window.location.search);
-  return params.get("stop") || "0"; // default fallback
+  return params.get("stop") || "NONE"; // default fallback
+}
+
+function getStopIdFromUrl() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get("route") || "ALL"; // default fallback
 }
 
 function formatUnixTime(unix) {
@@ -60,7 +66,7 @@ async function fetchBusTimes() {
     if (!tripUpdate) continue;
 
     for (const stu of tripUpdate.stopTimeUpdate) {
-      if (stu.stopId === STOP_ID) {
+      if (stu.stopId === STOP_ID && (tripUpdate.trip.routeId === ROUTE_ID || ROUTE_ID === "ALL")) {
         const arrivalUnix = stu.arrival?.time;
         const departureUnix = stu.departure?.time;
     
@@ -72,7 +78,8 @@ async function fetchBusTimes() {
         output.push(
           `Trip ID: ${tripUpdate.trip.tripId}
           Arrival: ${arrival} (${timeUntil(arrivalUnix)})  Delay: ${formatDelay(arrivalDelay)}
-          Departure: ${departure} (${timeUntil(departureUnix)})  Delay: ${formatDelay(departureDelay)}\n`
+          Departure: ${departure} (${timeUntil(departureUnix)})  Delay: ${formatDelay(departureDelay)}\n
+          Route ID: ${tripUpdate.trip.routeId}`
         );
         console.log(stu)
       }
