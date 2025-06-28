@@ -14,7 +14,7 @@ async function loadTransitData() {
 
   // Parse stops.txt
   stopsText.split("\n").forEach(line => {
-    const [stop_id, stop_code, stop_name] = line.split(",");
+    const [stop_lat,wheelchair_boarding,stop_code,stop_lon,stop_id,stop_url,parent_station,stop_desc,stop_name,location_type,zone_id] = line.split(",");
     if (stop_id && stop_name && stop_id !== "stop_id") {
       stopNameMap[stop_id.trim()] = stop_name.trim();
     }
@@ -22,7 +22,7 @@ async function loadTransitData() {
 
   // Parse routes.txt
   routesText.split("\n").forEach(line => {
-    const [route_id, agency_id, route_short_name, route_long_name] = line.split(",");
+    const [route_long_name,route_type,route_text_color,route_color,agency_id,route_id,route_url,route_desc,route_short_name] = line.split(",");
     if (route_id && route_short_name && route_id !== "route_id") {
       routeNameMap[route_id.trim()] = route_short_name.trim(); // or route_long_name
     }
@@ -31,12 +31,12 @@ async function loadTransitData() {
 
 function getStopName(stopId) {
   if (!stopId || stopId === "NONE") return "NONE";
-  return stopNameMap[stopId] || "NOT FOUND";
+  return stopNameMap[stopId] || `NOT FOUND ${stopId}`;
 }
 
 function getRouteName(routeId) {
   if (!routeId || routeId === "ALL") return "ALL";
-  return routeNameMap[routeId] || "NOT FOUND";
+  return routeNameMap[routeId] || `NOT FOUND ${routeId}`;
 }
 
 
@@ -103,7 +103,7 @@ async function fetchBusTimes() {
     if (!tripUpdate) continue;
     if (tripUpdate.trip.routeId === ROUTE_ID || ROUTE_ID === "ALL") {
       for (const stu of tripUpdate.stopTimeUpdate) {
-        if (stu.stopId === STOP_ID) {
+        if (stu.stopId === STOP_ID || STOP_ID === "NONE") {
           const arrivalUnix = stu.arrival?.time;
           const departureUnix = stu.departure?.time;
       
@@ -112,17 +112,18 @@ async function fetchBusTimes() {
           const arrivalDelay = stu.arrival?.delay;
           const departureDelay = stu.departure?.delay;
 
-          const stopName = getStopName(STOP_ID);
-          const routeName = getRouteName(ROUTE_ID);
+          const stopName = getStopName(stu.stopId);
+          const routeName = getRouteName(tripUpdate.trip.routeId);
       
           output.push(
             `Trip ID: ${tripUpdate.trip.tripId}
             Arrival: ${arrival} (${timeUntil(arrivalUnix)})  Delay: ${formatDelay(arrivalDelay)}
             Departure: ${departure} (${timeUntil(departureUnix)})  Delay: ${formatDelay(departureDelay)}
-            Route ID: ${tripUpdate.trip.routeId}
+            Stop ID: ${stu.stopId} (${stopName})
+            Route ID: ${tripUpdate.trip.routeId} (${routeName})
             \n`
           );
-          console.log(tripUpdate)
+          // console.log(tripUpdate)
         }
       }
     }
