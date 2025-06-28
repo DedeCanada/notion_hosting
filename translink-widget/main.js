@@ -12,7 +12,7 @@ function getStopIdFromUrl() {
   return params.get("stop") || "NONE"; // default fallback
 }
 
-function getStopIdFromUrl() {
+function getRouteIdFromUrl() {
   const params = new URLSearchParams(window.location.search);
   return params.get("route") || "ALL"; // default fallback
 }
