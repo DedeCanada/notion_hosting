@@ -138,8 +138,6 @@ async function fetchBusTimes() {
   await fetchBusTimes();
   const stopName = getStopName(STOP_ID);
   const routeName = getRouteName(ROUTE_ID);
-  document.addEventListener("DOMContentLoaded", () => {
-    document.getElementById("stop-title").innerText = `Next Buses for Stop ${stopName} (${routeName})`;
-  });
+  document.getElementById("stop-title").innerText = `Next Buses for Stop ${stopName} (${routeName})`;
   setInterval(fetchBusTimes, 60000);
 })();
