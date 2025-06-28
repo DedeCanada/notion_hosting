@@ -17,6 +17,21 @@ function formatUnixTime(unix) {
   });
 }
 
+function timeUntil(unix) {
+  if (!unix) return "N/A";
+  const diffSeconds = Math.floor(unix - Date.now() / 1000);
+  if (diffSeconds < 0) return "⏱️ departed";
+  const minutes = Math.floor(diffSeconds / 60);
+  const seconds = diffSeconds % 60;
+  return `in ${minutes}m ${seconds}s`;
+}
+
+function formatDelay(seconds) {
+  if (seconds === undefined || seconds === null) return "—";
+  if (seconds === 0) return "on time";
+  return (seconds > 0 ? "+" : "") + seconds + "s";
+}
+
 async function fetchBusTimes() {
   const response = await fetch(FEED_URL);
   const buffer = await response.arrayBuffer();
@@ -40,7 +55,9 @@ async function fetchBusTimes() {
         const arrival = formatUnixTime(stu.arrival?.time);
         const departure = formatUnixTime(stu.departure?.time);
         output.push(
-          `Trip ID: ${tripUpdate.trip.tripId}\nArrival: ${arrival}\nDeparture: ${departure}\n`
+          `Trip ID: ${tripUpdate.trip.tripId}\n +
+          Arrival: ${arrival} (${timeUntil(arrivalUnix)})  Delay: ${formatDelay(arrivalDelay)}\n +
+          Departure: ${departure} (${timeUntil(departureUnix)})  Delay: ${formatDelay(departureDelay)}\n`
         );
       }
     }
