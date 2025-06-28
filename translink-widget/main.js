@@ -6,6 +6,17 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("stop-title").innerText = `Next Buses for Stop ${STOP_ID}`;
 });
 
+function formatUnixTime(unix) {
+  if (!unix) return "Unknown";
+  const date = new Date(unix * 1000); // UNIX timestamp is in seconds
+  return date.toLocaleTimeString([], {
+    hour: 'numeric',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: true
+  });
+}
+
 async function fetchBusTimes() {
   const response = await fetch(FEED_URL);
   const buffer = await response.arrayBuffer();
@@ -26,8 +37,8 @@ async function fetchBusTimes() {
 
     for (const stu of tripUpdate.stopTimeUpdate) {
       if (stu.stopId === STOP_ID) {
-        const arrival = stu.arrival?.time ?? "Unknown";
-        const departure = stu.departure?.time ?? "Unknown";
+        const arrival = formatUnixTime(stu.arrival?.time);
+        const departure = formatUnixTime(stu.departure?.time);
         output.push(
           `Trip ID: ${tripUpdate.trip.tripId}\nArrival: ${arrival}\nDeparture: ${departure}\n`
         );
