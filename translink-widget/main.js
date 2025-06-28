@@ -40,9 +40,9 @@ function getRouteName(routeId) {
 }
 
 
-document.addEventListener("DOMContentLoaded", () => {
-  document.getElementById("stop-title").innerText = `Next Buses for Stop ${STOP_ID} (${ROUTE_ID})`;
-});
+// document.addEventListener("DOMContentLoaded", () => {
+//   document.getElementById("stop-title").innerText = `Next Buses for Stop ${STOP_ID} (${ROUTE_ID})`;
+// });
 
 function getStopIdFromUrl() {
   const params = new URLSearchParams(window.location.search);
@@ -136,5 +136,10 @@ async function fetchBusTimes() {
 (async () => {
   await loadTransitData();
   await fetchBusTimes();
+  const stopName = getStopName(STOP_ID);
+  const routeName = getRouteName(ROUTE_ID);
+  document.addEventListener("DOMContentLoaded", () => {
+    document.getElementById("stop-title").innerText = `Next Buses for Stop ${stopName} (${routeName})`;
+  });
   setInterval(fetchBusTimes, 60000);
 })();
