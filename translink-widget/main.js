@@ -24,11 +24,15 @@ function formatUnixTime(unix) {
 
 function timeUntil(unix) {
   if (!unix) return "N/A";
-  const diffSeconds = Math.floor(unix - Date.now() / 1000);
-  if (diffSeconds < 0) return "⏱️ departed";
+  let neg = ""
+  let diffSeconds = Math.floor(unix - Date.now() / 1000);
+  if (diffSeconds < 0) {
+    neg = "-";
+    diffSeconds = -diffSeconds;
+  }
   const minutes = Math.floor(diffSeconds / 60);
   const seconds = diffSeconds % 60;
-  return `in ${minutes}m ${seconds}s`;
+  return `in ${neg}${minutes}m ${seconds}s`;
 }
 
 function formatDelay(seconds) {
@@ -70,6 +74,7 @@ async function fetchBusTimes() {
           Arrival: ${arrival} (${timeUntil(arrivalUnix)})  Delay: ${formatDelay(arrivalDelay)}
           Departure: ${departure} (${timeUntil(departureUnix)})  Delay: ${formatDelay(departureDelay)}\n`
         );
+        console.log(stu)
       }
     }
   }
