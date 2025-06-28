@@ -64,24 +64,26 @@ async function fetchBusTimes() {
   for (const entity of message.entity) {
     const tripUpdate = entity.tripUpdate;
     if (!tripUpdate) continue;
-
-    for (const stu of tripUpdate.stopTimeUpdate) {
-      if (stu.stopId === STOP_ID && (tripUpdate.trip.routeId === ROUTE_ID || ROUTE_ID === "ALL")) {
-        const arrivalUnix = stu.arrival?.time;
-        const departureUnix = stu.departure?.time;
-    
-        const arrival = formatUnixTime(arrivalUnix);
-        const departure = formatUnixTime(departureUnix);
-        const arrivalDelay = stu.arrival?.delay;
-        const departureDelay = stu.departure?.delay;
-    
-        output.push(
-          `Trip ID: ${tripUpdate.trip.tripId}
-          Arrival: ${arrival} (${timeUntil(arrivalUnix)})  Delay: ${formatDelay(arrivalDelay)}
-          Departure: ${departure} (${timeUntil(departureUnix)})  Delay: ${formatDelay(departureDelay)}\n
-          Route ID: ${tripUpdate.trip.routeId}`
-        );
-        console.log(stu)
+    if (tripUpdate.trip.routeId === ROUTE_ID || ROUTE_ID === "ALL") {
+      for (const stu of tripUpdate.stopTimeUpdate) {
+        if (stu.stopId === STOP_ID) {
+          const arrivalUnix = stu.arrival?.time;
+          const departureUnix = stu.departure?.time;
+      
+          const arrival = formatUnixTime(arrivalUnix);
+          const departure = formatUnixTime(departureUnix);
+          const arrivalDelay = stu.arrival?.delay;
+          const departureDelay = stu.departure?.delay;
+      
+          output.push(
+            `Trip ID: ${tripUpdate.trip.tripId}
+            Arrival: ${arrival} (${timeUntil(arrivalUnix)})  Delay: ${formatDelay(arrivalDelay)}
+            Departure: ${departure} (${timeUntil(departureUnix)})  Delay: ${formatDelay(departureDelay)}
+            Route ID: ${tripUpdate.trip.routeId}
+            \n`
+          );
+          console.log(tripUpdate)
+        }
       }
     }
   }
