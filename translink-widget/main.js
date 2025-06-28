@@ -14,6 +14,7 @@ async function fetchBusTimes() {
 
   const message = FeedMessage.decode(new Uint8Array(buffer));
   const output = [];
+  console.log("Decoded GTFS message:", message);
 
   for (const entity of message.entity) {
     const tripUpdate = entity.tripUpdate;
