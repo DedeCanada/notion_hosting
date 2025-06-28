@@ -57,11 +57,17 @@ async function fetchBusTimes() {
 
     for (const stu of tripUpdate.stopTimeUpdate) {
       if (stu.stopId === STOP_ID) {
-        const arrival = formatUnixTime(stu.arrival?.time);
-        const departure = formatUnixTime(stu.departure?.time);
+        const arrivalUnix = stu.arrival?.time;
+        const departureUnix = stu.departure?.time;
+    
+        const arrival = formatUnixTime(arrivalUnix);
+        const departure = formatUnixTime(departureUnix);
+        const arrivalDelay = stu.arrival?.delay;
+        const departureDelay = stu.departure?.delay;
+    
         output.push(
-          `Trip ID: ${tripUpdate.trip.tripId}\n +
-          Arrival: ${arrival} (${timeUntil(arrivalUnix)})  Delay: ${formatDelay(arrivalDelay)}\n +
+          `Trip ID: ${tripUpdate.trip.tripId}
+          Arrival: ${arrival} (${timeUntil(arrivalUnix)})  Delay: ${formatDelay(arrivalDelay)}
           Departure: ${departure} (${timeUntil(departureUnix)})  Delay: ${formatDelay(departureDelay)}\n`
         );
       }
