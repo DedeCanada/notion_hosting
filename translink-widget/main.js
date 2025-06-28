@@ -1,10 +1,15 @@
 const PROTO_FILE = "transit.proto";
-const STOP_ID = "63";
+const STOP_ID = getStopIdFromUrl();
 const FEED_URL = "https://translink-proxy.onrender.com/gtfs"; // Replace with your actual URL
 
 document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("stop-title").innerText = `Next Buses for Stop ${STOP_ID}`;
 });
+
+function getStopIdFromUrl() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get("stop") || "0"; // default fallback
+}
 
 function formatUnixTime(unix) {
   if (!unix) return "Unknown";
