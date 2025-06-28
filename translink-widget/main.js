@@ -4,9 +4,9 @@ const FEED_URL = "https://translink-proxy.onrender.com/gtfs"; // Replace with yo
 
 async function fetchBusTimes() {
   const response = await fetch(FEED_URL);
-  // const buffer = await response.arrayBuffer();
-  const text = await response.text();
-  console.log(text);
+  const buffer = await response.arrayBuffer();
+  // const text = await response.text();
+  // console.log(text);
 
 
   const root = await protobuf.load(PROTO_FILE);
