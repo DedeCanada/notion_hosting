@@ -1,6 +1,6 @@
 const PROTO_FILE = "transit.proto";
 const STOP_ID = "10863";
-const FEED_URL = "https://translink-proxy.onrender.com"; // Replace with your actual URL
+const FEED_URL = "https://translink-proxy.onrender.com/gtfs"; // Replace with your actual URL
 
 async function fetchBusTimes() {
   const response = await fetch(FEED_URL);
