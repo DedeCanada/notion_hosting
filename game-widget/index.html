@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Clicker Game Widget</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      background: #f5f5f5;
+      padding: 20px;
+      margin: 0;
+    }
+    #click-btn {
+      font-size: 24px;
+      padding: 20px 40px;
+      margin-top: 20px;
+      cursor: pointer;
+      background: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 12px;
+    }
+    #upgrade-btn {
+      font-size: 16px;
+      margin-top: 20px;
+      padding: 10px 20px;
+      background: #2196F3;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+    }
+    #score {
+      font-size: 32px;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🍪 Cookie Clicker</h1>
+  <div id="score">Score: 0</div>
+  <button id="click-btn">Click Me!</button>
+  <br>
+  <button id="upgrade-btn">Upgrade (+1/click) – 10 points</button>
+
+  <script>
+    let score = 0;
+    let pointsPerClick = 1;
+
+    const scoreDisplay = document.getElementById("score");
+    const clickBtn = document.getElementById("click-btn");
+    const upgradeBtn = document.getElementById("upgrade-btn");
+
+    clickBtn.onclick = () => {
+      score += pointsPerClick;
+      updateScore();
+    };
+
+    upgradeBtn.onclick = () => {
+      if (score >= 10) {
+        score -= 10;
+        pointsPerClick += 1;
+        updateScore();
+      } else {
+        alert("Not enough points!");
+      }
+    };
+
+    function updateScore() {
+      scoreDisplay.innerText = `Score: ${score}`;
+    }
+  </script>
+
+</body>
+</html>
