@@ -7,15 +7,15 @@ body {
   display: flex;
   justify-content: center;
   align-items: start;
-  padding: 2rem;
+  padding: 0.5rem;
 }
 
 .container {
   background: rgba(0, 0, 0, 0.3);
-  padding: 2rem;
-  border-radius: 12px;
+  padding: 0.5rem;
+  border-radius: 6px;
   width: 100%;
-  max-width: 700px;
+  max-width: 1200px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
 }
 
@@ -24,18 +24,40 @@ body {
 }
 
 h1 {
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   margin-bottom: 1rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.3);
   padding-bottom: 0.5rem;
+  text-align: center;
 }
 
-pre {
+.content-split {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+/* Text Output */
+#output {
+  padding-left: 0.5rem;
+  margin-top: 0px;
   font-size: 1rem;
   white-space: pre-wrap;
   line-height: 1.5;
   background-color: rgba(255, 255, 255, 0.1);
-  padding: 1rem;
-  border-radius: 8px;
-  overflow-x: auto;
+  border-radius: 4px;
+  overflow-y: auto;
+  flex: 1 1 40%;
+  height: 400px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Map Display */
+#map {
+  height: 400px;
+  flex: 1 1 55%;
+  min-width: 100px;
+  border-radius: 5px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
