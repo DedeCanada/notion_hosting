@@ -161,12 +161,11 @@ async function fetchBusTimes() {
       });
 
       output.push(
-`Trip ID: ${tu.trip.tripId}
-${formatUnixTime(arrivalUnix)} (${timeUntil(arrivalUnix)})
-Route: ${routeShortNameMap[tu.trip.routeId] || tu.trip.routeId}
-`);
+`${routeShortNameMap[tu.trip.routeId] || tu.trip.routeId}: ${formatUnixTime(arrivalUnix)} (${timeUntil(arrivalUnix)})`);
 // Departure: ${formatUnixTime(departureUnix)} (${timeUntil(departureUnix)})  Delay: ${formatDelay(stu.departure?.delay)}
   // Delay: ${formatDelay(stu.arrival?.delay)}
+  // Trip ID: ${tu.trip.tripId}
+  // Route: ${routeShortNameMap[tu.trip.routeId] || tu.trip.routeId}
     }
   }
 
