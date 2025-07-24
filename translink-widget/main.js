@@ -298,11 +298,14 @@ function deg2rad(deg) {
 
 function renderLiveCountdown() {
   const output = liveBusEntries.map(entry => (
-`Trip ID: ${entry.tripId}
-Arrival: ${formatUnixTime(entry.arrivalUnix)} (${timeUntil(entry.arrivalUnix)})  Delay: ${formatDelay(entry.arrivalDelay)}
-Departure: ${formatUnixTime(entry.departureUnix)} (${timeUntil(entry.departureUnix)})  Delay: ${formatDelay(entry.departureDelay)}
-Route: ${routeShortNameMap[entry.routeId] || entry.routeId}
-`)).join("\n");
+    `${routeShortNameMap[tu.trip.routeId] || tu.trip.routeId}: ${formatUnixTime(arrivalUnix)} (${timeUntil(arrivalUnix)})`
+  )).join("\n");
+  
+// `Trip ID: ${entry.tripId}
+// Arrival: ${formatUnixTime(entry.arrivalUnix)} (${timeUntil(entry.arrivalUnix)})  Delay: ${formatDelay(entry.arrivalDelay)}
+// Departure: ${formatUnixTime(entry.departureUnix)} (${timeUntil(entry.departureUnix)})  Delay: ${formatDelay(entry.departureDelay)}
+// Route: ${routeShortNameMap[entry.routeId] || entry.routeId}
+// `
 
   document.getElementById("output").innerText = output || 
   `No buses for stop ${STOP_CODE || "ALL"} and route ${ROUTE_NAME || "ALL"}`;

@@ -1,3 +1,4 @@
+/* === Base Styles === */
 body {
   margin: 0;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -6,58 +7,83 @@ body {
   min-height: 100vh;
   display: flex;
   justify-content: center;
-  align-items: start;
   padding: 0.5rem;
+  box-sizing: border-box;
+  overflow-x: hidden;
 }
 
 .container {
-  background: rgba(0, 0, 0, 0.3);
-  padding: 0.5rem;
-  border-radius: 6px;
   width: 100%;
   max-width: 1200px;
+  padding: 0.5rem;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 6px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  box-sizing: border-box;
 }
 
-.hidden {
-  display: none !important;
-}
-
+/* === Header === */
 h1 {
   font-size: 1.25rem;
   margin-bottom: 1rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.3);
   padding-bottom: 0.5rem;
   text-align: center;
+  width: 100%;
 }
 
-.content-split {
+/* === New Flex Content Block === */
+.content {
   display: flex;
   flex-direction: row;
-  gap: 1rem;
-  flex-wrap: wrap;
+  gap: 0.5rem;
+  flex-wrap: nowrap;
 }
 
-/* Text Output */
+/* === Output Panel === */
 #output {
-  padding-left: 0.5rem;
-  margin-top: 0px;
-  font-size: 1rem;
-  white-space: pre-wrap;
-  line-height: 1.5;
   background-color: rgba(255, 255, 255, 0.1);
+  margin: 0;
+  margin-top: 0px;
+  padding: 1rem;
   border-radius: 4px;
-  overflow-y: auto;
-  flex: 1 1 40%;
-  height: 400px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  overflow-x: auto;
+  font-size: 1rem;
+  line-height: 1.5;
+  flex: 1 1 50%;
+  box-sizing: border-box;
+  white-space: pre-wrap;
+  min-width: 200px;
 }
 
-/* Map Display */
+/* === Map Section === */
 #map {
-  height: 400px;
-  flex: 1 1 55%;
-  min-width: 100px;
-  border-radius: 5px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  flex: 1 1 50%;
+  min-height: 300px;
+  height: 100%;
+  border-radius: 4px;
+  box-sizing: border-box;
+  min-width: 200px;
 }
+
+/* === Utility === */
+.hidden {
+  display: none !important;
+}
+
+/* === Responsive: stack vertically on small screens === */
+@media (max-width: 768px) {
+  .content {
+    flex-direction: column;
+  }
+
+  #map {
+    height: 300px; /* or more if needed */
+    width: 100%;
+  }
+
+  #output {
+    width: 100%;
+  }
+}
+
