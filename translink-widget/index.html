@@ -1,13 +1,20 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="utf-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>TransLink Bus Times</title>
+  <link rel="stylesheet" href="style.css" />
   <script src="protobuf.min.js"></script>
   <script src="main.js" defer></script>
 </head>
 <body>
-  <h2 id="stop-title">Loading stop info...</h2>
-  <pre id="output">Loading...</pre>
+  <div class="container">
+    <h1 id="stop-title">Loading...</h1>
+    <pre id="output">Fetching data...</pre>
+    <div id="map" style="height: 400px; margin-top: 20px;"></div>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  </div>
 </body>
 </html>
