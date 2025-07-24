@@ -298,7 +298,7 @@ function deg2rad(deg) {
 
 function renderLiveCountdown() {
   const output = liveBusEntries.map(entry => (
-    `${routeShortNameMap[tu.trip.routeId] || tu.trip.routeId}: ${formatUnixTime(arrivalUnix)} (${timeUntil(arrivalUnix)})`
+    `${routeShortNameMap[entry.trip.routeId] || entry.trip.routeId}: ${formatUnixTime(arrivalUnix)} (${timeUntil(arrivalUnix)})`
   )).join("\n");
   
 // `Trip ID: ${entry.tripId}
