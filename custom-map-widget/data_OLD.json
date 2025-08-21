@@ -1,0 +1,181 @@
+{
+  "points": [
+    {
+      "lat": 49.21937, "lng": -123.11909,
+      "icon": "home.png",
+      "label": "Home",
+      "color": "yellow"
+    },
+    {
+      "lat": 49.21931, "lng": -123.11652,
+      "icon": "bus.png",
+      "label": "15 Bus",
+      "color": "red"
+    },
+    {
+      "lat": 49.22621, "lng": -123.11609,
+      "icon": "bus.png",
+      "label": "49 Bus",
+      "color": "red"
+    },
+    {
+      "lat": 49.26758, "lng": -123.25275,
+      "icon": "school.png",
+      "label": "IKB",
+      "color": "blue"
+    },
+    {
+      "lat": 49.26820, "lng": -123.24751,
+      "icon": "train.png",
+      "label": "UBC Exchange",
+      "color": "red"
+    },
+    {
+      "lat": 49.28015, "lng": -123.11644,
+      "icon": "church.png",
+      "label": "Church",
+      "color": "yellow"
+    },
+    {
+      "lat": 49.2638631, "lng": -123.2547778,
+      "icon": "school.png",
+      "label": "Volunteering",
+      "color": "blue"
+    },
+    {
+      "lat": 49.2621231, "lng": -123.09958,
+      "icon": "gym.png",
+      "label": "Progression",
+      "color": "orange"
+    },
+    {
+      "lat": 49.2409644, "lng": -123.1016893,
+      "icon": "gym.png",
+      "label": "Taekwondo",
+      "color": "orange"
+    },
+    {
+      "lat": 49.2631217, "lng": -123.2521791,
+      "icon": "book.png",
+      "label": "STAT 200-101",
+      "color": "green"
+    },
+    {
+      "lat": 49.26125, "lng": -123.24806,
+      "icon": "book.png",
+      "label": "CPSC 210-101",
+      "color": "green"
+    },
+    {
+      "lat": 49.26573, "lng": -123.24745,
+      "icon": "book.png",
+      "label": "NSCI 200-101",
+      "color": "green"
+    },
+    {
+      "lat": 49.26397, "lng": -123.25293,
+      "icon": "book.png",
+      "label": "BIOL 200-102",
+      "color": "green"
+    },
+    {
+      "lat": 49.26460, "lng": -123.25107,
+      "icon": "book.png",
+      "label": "BIOL 200-T15",
+      "color": "green"
+    },
+    {
+      "lat": 49.26537, "lng": -123.25234,
+      "icon": "book.png",
+      "label": "CHEM 233-122",
+      "color": "green"
+    },
+    {
+      "lat": 49.26545, "lng": -123.25536,
+      "icon": "book.png",
+      "label": "COGS 200-101",
+      "color": "green"
+    },
+    {
+      "lat": 49.26086, "lng": -123.24888,
+      "icon": "book.png",
+      "label": "Maple Bacon",
+      "color": "pink"
+    },
+    {
+      "lat": 49.26087, "lng": -123.24878,
+      "icon": "book.png",
+      "label": "CPSC 210-L1D",
+      "color": "green"
+    },
+    {
+      "lat": 49.26324, "lng": -123.25226,
+      "icon": "book.png",
+      "label": "STAT 200-L1K",
+      "color": "green"
+    }
+
+
+  ],
+  "paths": [
+    {
+      "points": [
+        { "lat": 49.22621, "lng": -123.11609 },
+        { "lat": 49.22614, "lng": -123.11613 },
+        { "lat": 49.22696, "lng": -123.13988 },
+        { "lat": 49.22735, "lng": -123.17118 },
+        { "lat": 49.23010, "lng": -123.17871 },
+        { "lat": 49.23060, "lng": -123.18541 },
+        { "lat": 49.23477, "lng": -123.18534 },
+        { "lat": 49.23479, "lng": -123.19643 },
+        { "lat": 49.23863, "lng": -123.21067 },
+        { "lat": 49.24122, "lng": -123.22621 },
+        { "lat": 49.24499, "lng": -123.23356 },
+        { "lat": 49.24739, "lng": -123.23177 },
+        { "lat": 49.25003, "lng": -123.23236 },
+        { "lat": 49.25569, "lng": -123.23633 },
+        { "lat": 49.26833, "lng": -123.24713 },
+        { "lat": 49.26820, "lng": -123.24751 }
+      ],
+      "label": "Langara - UBC",
+      "color": "red"
+    },
+    {
+      "points": [
+        { "lat": 49.26743, "lng": -123.24685 },
+        { "lat": 49.26754, "lng": -123.24645 },
+        { "lat": 49.26633, "lng": -123.24546 },
+        { "lat": 49.26699, "lng": -123.24179 },
+        { "lat": 49.26694, "lng": -123.23895 },
+        { "lat": 49.26616, "lng": -123.23629 },
+        { "lat": 49.26429, "lng": -123.23331 },
+        { "lat": 49.26362, "lng": -123.23116 },
+        { "lat": 49.26393, "lng": -123.21521 },
+        { "lat": 49.26349, "lng": -123.18593 },
+        { "lat": 49.26437, "lng": -123.18586 },
+        { "lat": 49.26285, "lng": -123.09974 },
+        { "lat": 49.2621231, "lng": -123.09958 },
+        { "lat": 49.2621231, "lng": -123.09958 },
+        { "lat": 49.2621231, "lng": -123.09958 },
+        { "lat": 49.2621231, "lng": -123.09958 },
+        { "lat": 49.2621231, "lng": -123.09958 }
+      ],
+      "label": "UBC - Progression",
+      "color": "orange"
+    },
+    {
+      "points": [
+        { "lat": 49.2631217, "lng": -123.2521791 },
+        { "lat": 49.26125, "lng": -123.24806 },
+        { "lat": 49.26573, "lng": -123.24745 },
+        { "lat": 49.2638631, "lng": -123.2547778 }
+
+
+
+      ],
+      "label": "Monday",
+      "color": "yellow",
+      "size": "8px"
+    }
+  ]
+}
