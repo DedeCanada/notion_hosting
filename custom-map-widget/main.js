@@ -42,24 +42,27 @@ function initMap(data) {
     const defaultSizePx = 14;
     const userSize = parseFloat(path.size || defaultSizePx);
     const scale = userSize / defaultSizePx;
-
-    const styleId = `dynamic-tooltip-style-${userSize}`;
+    const borderColor = path.color || 'green';
+    const styleId = `dynamic-tooltip-style-${path.label}`;
     if (!document.getElementById(styleId)) {
       const style = document.createElement('style');
       style.id = styleId;
+      console.log(style);
+      console.log(path);
 
       style.textContent = `
-        .tooltip-${userSize} {
+        .tooltip-${path.label.replace(/\s+/g, '').toLowerCase()} {
           position: absolute;
           transform: translate(-50%, -50%);
           background: rgba(255, 255, 255, 0.9);
           padding: ${2 * scale}px ${6 * scale}px;
-          border-radius: ${4 * scale}px;
+          border-radius: ${3 * scale}px;
           font-size: ${userSize}px;
           font-family: sans-serif;
           pointer-events: none;
           white-space: nowrap;
-          border: ${1 * scale}px solid #ccc;
+          border: ${3 * scale}px solid;
+          border-color: ${borderColor};
         }
       `;
       document.head.appendChild(style);
@@ -68,7 +71,7 @@ function initMap(data) {
     L.tooltip({
       permanent: true,
       direction: 'center',
-      className: `path-label tooltip-${userSize}`
+      className: `path-label tooltip-${path.label.replace(/\s+/g, '').toLowerCase()}`
     })
       .setContent(path.label)
       .setLatLng(midLatLng)

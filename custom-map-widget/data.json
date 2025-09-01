@@ -182,6 +182,7 @@
     },
     {
       "points": [
+        { "lat": 49.2682, "lng": -123.24751, "label": "UBC Exchange" },
         { "lat": 49.2631217, "lng": -123.2521791, "label": "STAT 200-101" },
         { "lat": 49.26125, "lng": -123.24806, "label": "CPSC 210-101" },
         { "lat": 49.26573, "lng": -123.24745, "label": "NSCI 200-101" },
@@ -189,6 +190,55 @@
       ],
       "label": "Monday",
       "color": "yellow",
+      "size": "8px"
+    },
+    {
+      "points": [
+        { "lat": 49.2682, "lng": -123.24751, "label": "UBC Exchange" },
+        { "lat": 49.26397, "lng": -123.25293, "label": "BIOL 200-102" },
+        { "lat": 49.2646, "lng": -123.25107, "label": "BIOL 200-T15" },
+        { "lat": 49.2638631, "lng": -123.2547778, "label": "Volunteering" },
+        { "lat": 49.26537, "lng": -123.25234, "label": "CHEM 233-122" },
+        { "lat": 49.26545, "lng": -123.25536, "label": "COGS 200-101" }
+      ],
+      "label": "Tuesday",
+      "color": "blue",
+      "size": "8px"
+    },
+    {
+      "points": [
+        { "lat": 49.2682, "lng": -123.24751, "label": "UBC Exchange" },
+        { "lat": 49.2631217, "lng": -123.2521791, "label": "STAT 200-101" },
+        { "lat": 49.26125, "lng": -123.24806, "label": "CPSC 210-101" },
+        { "lat": 49.26573, "lng": -123.24745, "label": "NSCI 200-101" },
+        { "lat": 49.26087, "lng": -123.24878, "label": "CPSC 210-L1D" }
+      ],
+      "label": "Wednesday",
+      "color": "green",
+      "size": "8px"
+    },
+    {
+      "points": [
+        { "lat": 49.2682, "lng": -123.24751, "label": "UBC Exchange" },
+        { "lat": 49.26397, "lng": -123.25293, "label": "BIOL 200-102" },
+        { "lat": 49.26324, "lng": -123.25226, "label": "STAT 200-L1K" },
+        { "lat": 49.2638631, "lng": -123.2547778, "label": "Volunteering" },
+        { "lat": 49.26537, "lng": -123.25234, "label": "CHEM 233-122" },
+        { "lat": 49.26545, "lng": -123.25536, "label": "COGS 200-101" }
+      ],
+      "label": "Thursday",
+      "color": "red",
+      "size": "8px"
+    },
+        {
+      "points": [
+        { "lat": 49.2682, "lng": -123.24751, "label": "UBC Exchange" },
+        { "lat": 49.2631217, "lng": -123.2521791, "label": "STAT 200-101" },
+        { "lat": 49.26125, "lng": -123.24806, "label": "CPSC 210-101" },
+        { "lat": 49.26086, "lng": -123.24888, "label": "Maple Bacon" }
+      ],
+      "label": "Friday",
+      "color": "purple",
       "size": "8px"
     }
   ]
