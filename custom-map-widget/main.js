@@ -1,4 +1,9 @@
-fetch('data.json')
+function getQueryParam(key, fallback = "") {
+  const params = new URLSearchParams(window.location.search);
+  return params.get(key) || fallback;
+}
+
+fetch(`${getQueryParam("name","null")}.json`)
   .then(res => res.json())
   .then(initMap);
 
@@ -85,7 +90,8 @@ function initMap(data) {
     if (!showCoords) return;
 
     const content = `"lat": ${e.latlng.lat.toFixed(5)}, "lng": ${e.latlng.lng.toFixed(5)},`;
-    L.popup().setLatLng(e.latlng).setContent(content).openOn(map);
+    console.log(content)
+    // L.popup().setLatLng(e.latlng).setContent(content).openOn(map);
   });
 }
 

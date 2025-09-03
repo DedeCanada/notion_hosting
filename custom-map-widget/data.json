@@ -29,8 +29,8 @@
       "color": "blue"
     },
     {
-      "lat": 49.2682,
-      "lng": -123.24751,
+      "lat": 49.26775,
+      "lng": -123.24771,
       "icon": "train.png",
       "label": "UBC Exchange",
       "color": "red"
@@ -132,6 +132,13 @@
       "icon": "book.png",
       "label": "STAT 200-L1K",
       "color": "green"
+    },
+    {
+      "lat": 49.26868, 
+      "lng": -123.24992,
+      "icon": "coffee.png",
+      "label": "Tim Hortons",
+      "color": "orange"
     }
   ],
   "paths": [
@@ -152,7 +159,7 @@
         { "lat": 49.25003, "lng": -123.23236 },
         { "lat": 49.25569, "lng": -123.23633 },
         { "lat": 49.26833, "lng": -123.24713 },
-        { "lat": 49.2682, "lng": -123.24751, "label": "UBC Exchange" }
+        { "lat": 49.26775, "lng": -123.24771, "label": "UBC Exchange" }
       ],
       "label": "Langara - UBC",
       "color": "red"
@@ -182,7 +189,7 @@
     },
     {
       "points": [
-        { "lat": 49.2682, "lng": -123.24751, "label": "UBC Exchange" },
+        { "lat": 49.26775, "lng": -123.24771, "label": "UBC Exchange" },
         { "lat": 49.2631217, "lng": -123.2521791, "label": "STAT 200-101" },
         { "lat": 49.26125, "lng": -123.24806, "label": "CPSC 210-101" },
         { "lat": 49.26573, "lng": -123.24745, "label": "NSCI 200-101" },
@@ -194,7 +201,7 @@
     },
     {
       "points": [
-        { "lat": 49.2682, "lng": -123.24751, "label": "UBC Exchange" },
+        { "lat": 49.26775, "lng": -123.24771, "label": "UBC Exchange" },
         { "lat": 49.26397, "lng": -123.25293, "label": "BIOL 200-102" },
         { "lat": 49.2646, "lng": -123.25107, "label": "BIOL 200-T15" },
         { "lat": 49.2638631, "lng": -123.2547778, "label": "Volunteering" },
@@ -207,7 +214,7 @@
     },
     {
       "points": [
-        { "lat": 49.2682, "lng": -123.24751, "label": "UBC Exchange" },
+        { "lat": 49.26775, "lng": -123.24771, "label": "UBC Exchange" },
         { "lat": 49.2631217, "lng": -123.2521791, "label": "STAT 200-101" },
         { "lat": 49.26125, "lng": -123.24806, "label": "CPSC 210-101" },
         { "lat": 49.26573, "lng": -123.24745, "label": "NSCI 200-101" },
@@ -219,7 +226,7 @@
     },
     {
       "points": [
-        { "lat": 49.2682, "lng": -123.24751, "label": "UBC Exchange" },
+        { "lat": 49.26775, "lng": -123.24771, "label": "UBC Exchange" },
         { "lat": 49.26397, "lng": -123.25293, "label": "BIOL 200-102" },
         { "lat": 49.26324, "lng": -123.25226, "label": "STAT 200-L1K" },
         { "lat": 49.2638631, "lng": -123.2547778, "label": "Volunteering" },
@@ -232,7 +239,7 @@
     },
         {
       "points": [
-        { "lat": 49.2682, "lng": -123.24751, "label": "UBC Exchange" },
+        { "lat": 49.26775, "lng": -123.24771, "label": "UBC Exchange" },
         { "lat": 49.2631217, "lng": -123.2521791, "label": "STAT 200-101" },
         { "lat": 49.26125, "lng": -123.24806, "label": "CPSC 210-101" },
         { "lat": 49.26086, "lng": -123.24888, "label": "Maple Bacon" }
