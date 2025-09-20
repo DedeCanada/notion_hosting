@@ -173,6 +173,7 @@ async function fetchBusTimes() {
     ? output.join("\n")
     : `No buses for stop ${STOP_CODE || "ALL"} and route ${ROUTE_NAME || "ALL"}`;
 }
+window.fetchBusTimes = fetchBusTimes;
 
 async function renderMapIfNeeded() {
   const stopId = getStopIdFromCode(STOP_CODE);
@@ -310,3 +311,4 @@ function renderLiveCountdown() {
   document.getElementById("output").innerText = output || 
   `No buses for stop ${STOP_CODE || "ALL"} and route ${ROUTE_NAME || "ALL"}`;
 }
+
