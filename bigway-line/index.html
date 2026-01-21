@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>UBC BigWay — Line Monitor</title>
+  <link rel="stylesheet" href="style.css" />
+
+  <!-- Chart.js + time adapter -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/date-fns@3.6.0"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0"></script>
+
+  <script src="main.js" defer></script>
+</head>
+<body>
+  <div class="container container-embed">
+    <header class="header header-compact">
+      <h1>UBC BigWay — Line Monitor</h1>
+      <div class="controls">
+        <button id="reload-btn" class="btn btn-compact">⟳ Reload</button>
+      </div>
+    </header>
+
+    <section class="kpiBar" aria-label="Current values">
+      <div class="kpi kpi-compact">
+        <div class="kpi-label">Line (parties)</div>
+        <div class="kpi-value" id="kpi-line">—</div>
+      </div>
+
+      <div class="kpi kpi-compact">
+        <div class="kpi-label">People</div>
+        <div class="kpi-value" id="kpi-people">—</div>
+      </div>
+
+      <div class="kpi kpi-compact">
+        <div class="kpi-label">Avg / party</div>
+        <div class="kpi-value" id="kpi-avg">—</div>
+      </div>
+    </section>
+
+    <section class="card card-compact">
+      <div class="row row-top">
+        <h2 class="chart-title">Last 24h</h2>
+        <div class="muted small" id="kpi-time">—</div>
+      </div>
+
+      <div class="chartWrap chartWrap-compact">
+        <canvas id="chartCombined"></canvas>
+      </div>
+    </section>
+
+    <section class="card card-compact small">
+      <div class="row">
+        <div class="muted">Source: <code id="data-url">—</code></div>
+        <div class="muted">Refresh: <span id="refresh-interval">—</span></div>
+      </div>
+      <pre id="status" class="status status-compact" aria-live="polite">Ready.</pre>
+    </section>
+  </div>
+</body>
+</html>

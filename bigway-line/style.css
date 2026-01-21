@@ -1,0 +1,192 @@
+/* === Base Styles (dark) === */
+:root{
+  --bg0: #0b1020;
+  --card: rgba(255,255,255,0.06);
+  --text: rgba(255,255,255,0.92);
+  --muted: rgba(255,255,255,0.70);
+  --border: rgba(255,255,255,0.12);
+  --shadow: 0 10px 28px rgba(0,0,0,0.45);
+  --radius: 14px;
+}
+
+* { box-sizing: border-box; }
+
+body{
+  margin: 0;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+  background: radial-gradient(1200px 800px at 20% 20%, #1b2a55 0%, var(--bg0) 55%, #060913 100%);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  padding: 10px;
+  overflow-x: hidden;
+}
+
+code{
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.08);
+  padding: 2px 6px;
+  border-radius: 8px;
+}
+
+.container{
+  width: 100%;
+  max-width: 980px;
+  padding: 10px;
+  background: rgba(0,0,0,0.22);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+/* === Header (compact) === */
+.header{
+  display:flex;
+  align-items:center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 4px 6px 2px 6px;
+}
+
+.header h1{
+  margin: 0;
+  font-size: 0.92rem;   /* small */
+  font-weight: 800;
+  letter-spacing: 0.2px;
+}
+
+/* === Controls === */
+.controls{ display:flex; align-items:center; gap: 10px; }
+
+.btn{
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.08);
+  color: var(--text);
+  padding: 6px 10px;
+  border-radius: 10px;
+  font-size: 0.88rem;
+  cursor:pointer;
+  transition: transform 0.05s ease, background 0.2s ease;
+}
+.btn:hover{ background: rgba(255,255,255,0.12); }
+.btn:active{ transform: translateY(1px); }
+
+/* === KPI Bar (must stay 3 across) === */
+.kpiBar{
+  display:grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr)); /* ALWAYS 3 */
+  gap: 8px;
+  padding: 6px;
+  margin: 6px 4px 8px 4px;
+}
+
+.kpi{
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 7px 10px;
+  min-width: 0; /* allow shrinking */
+}
+
+.kpi-label{
+  color: var(--muted);
+  font-size: clamp(0.62rem, 1.9vw, 0.72rem);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.kpi-value{
+  font-size: clamp(0.92rem, 2.8vw, 1.08rem);
+  margin-top: 4px;
+  font-weight: 800;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* === Cards / Layout === */
+.card{
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 10px;
+  margin: 6px;
+}
+
+.card.small{
+  padding: 9px 10px;
+}
+
+.row{
+  display:flex;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: nowrap;
+  align-items: center;
+}
+
+.row-top{
+  margin-bottom: 6px;
+}
+
+.chart-title{
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.muted{
+  color: var(--muted);
+  font-size: 0.86rem;
+}
+
+.muted.small{
+  font-size: 0.74rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* === Chart focus === */
+/* Fixed-height wrapper prevents page growing and keeps chart dominant */
+.chartWrap{
+  height: 360px;
+  width: 100%;
+  position: relative;
+}
+
+/* === Status === */
+.status{
+  margin: 10px 0 0 0;
+  background: rgba(0,0,0,0.25);
+  border: 1px dashed rgba(255,255,255,0.20);
+  border-radius: 12px;
+  padding: 8px;
+  white-space: pre-wrap;
+  overflow-x: auto;
+  color: rgba(255,255,255,0.86);
+  font-size: 0.82rem;
+}
+
+/* === Responsive tweaks (DO NOT change KPI columns) === */
+@media (max-width: 700px){
+  body{ padding: 8px; }
+  .chartWrap{ height: 300px; }
+  .btn{ padding: 6px 9px; }
+}
+
+@media (max-width: 520px){
+  .header{
+    flex-direction: row;        /* keep header on one line */
+    align-items: center;
+  }
+  .header h1{
+    font-size: 0.88rem;
+  }
+  .chartWrap{ height: 260px; }
+}
+
+/* Legacy classes kept for compatibility */
+.kpis, .charts, .subtitle { display: none; }
