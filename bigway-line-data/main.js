@@ -206,7 +206,8 @@ async function refreshOnce() {
   const payload = await fetchData(dataUrl);
   const raw = normalizeN8nPayload(payload);
   const records = sanitizeRecords(raw);
-  const last24 = filterLast24h(records);
+//   const last24 = filterLast24h(records);
+  const last24 = records;
 
   if (!last24.length) {
     logStatus("No usable records in the last 24 hours (check payload + timeAdded).");
