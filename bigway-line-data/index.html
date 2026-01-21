@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>UBC BigWay Line Dashboard (Last 24h)</title>
+  <link rel="stylesheet" href="style.css" />
+
+  <!-- Chart.js + time adapter -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/date-fns@3.6.0"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0"></script>
+
+  <script src="main.js" defer></script>
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <div>
+        <h1>UBC BigWay — Line Monitor</h1>
+        <p class="subtitle">Shows the last 24 hours of <code>lineSize</code> and <code>partySize</code> using <code>timeAdded</code>.</p>
+      </div>
+
+      <div class="controls">
+        <button id="reload-btn" class="btn">⟳ Reload</button>
+      </div>
+    </header>
+
+    <section class="kpis" aria-label="Current values">
+      <div class="kpi">
+        <div class="kpi-label">Current line size (parties)</div>
+        <div class="kpi-value" id="kpi-line">—</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Current party size (people)</div>
+        <div class="kpi-value" id="kpi-people">—</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Avg people / party</div>
+        <div class="kpi-value" id="kpi-avg">—</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Last reading</div>
+        <div class="kpi-value kpi-small" id="kpi-time">—</div>
+      </div>
+    </section>
+
+    <section class="charts">
+      <div class="card">
+        <h2>Line size over time (last 24h)</h2>
+        <canvas id="chartLineSize" height="140"></canvas>
+      </div>
+
+      <div class="card">
+        <h2>Party size over time (last 24h)</h2>
+        <canvas id="chartPartySize" height="140"></canvas>
+      </div>
+    </section>
+
+    <section class="card small">
+      <div class="row">
+        <div class="muted">
+          Data source: <code id="data-url">—</code>
+        </div>
+        <div class="muted">
+          Auto-refresh: <span id="refresh-interval">—</span>
+        </div>
+      </div>
+      <pre id="status" class="status" aria-live="polite">Ready.</pre>
+    </section>
+
+    <footer class="footer">
+      <div class="muted">
+        Tip: pass <code>?data=YOUR_N8N_WEBHOOK_URL</code> in the URL to set the endpoint.
+      </div>
+    </footer>
+  </div>
+</body>
+</html>
