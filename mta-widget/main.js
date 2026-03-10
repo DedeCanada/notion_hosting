@@ -246,14 +246,7 @@ async function renderMapIfNeeded() {
     attribution: "Map data &copy; OpenStreetMap contributors"
   }).addTo(map);
 
-  stopMarker = L.circleMarker([lat, lon], {
-    radius: 10,
-    fillColor: "#fff",
-    color: "#333",
-    weight: 3,
-    opacity: 1,
-    fillOpacity: 1
-  }).addTo(map)
+  stopMarker = L.marker([lat, lon]).addTo(map)
     .bindPopup(`Stop ${STOP_ID}<br>${stopNameMap[STOP_ID] || "Unknown"}`);
 
   // Render nearby parent stops as squares within 4km
@@ -266,12 +259,12 @@ async function renderMapIfNeeded() {
     if (dist > 4) continue;
 
     L.rectangle(
-      [[coords[0] - 0.0006, coords[1] - 0.0006],
-       [coords[0] + 0.0006, coords[1] + 0.0006]],
+      [[coords[0] - 0.0003, coords[1] - 0.0003],
+       [coords[0] + 0.0003, coords[1] + 0.0003]],
       {
-        color: "#fff",
-        weight: 2,
-        fillColor: "#e0e0e0",
+        color: "#000",
+        weight: 1,
+        fillColor: "#000",
         fillOpacity: 0.9,
         interactive: true
       }
