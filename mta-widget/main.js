@@ -255,6 +255,28 @@ async function renderMapIfNeeded() {
     fillOpacity: 1
   }).addTo(map)
     .bindPopup(`Stop ${STOP_ID}<br>${stopNameMap[STOP_ID] || "Unknown"}`);
+
+  // Render nearby parent stops as squares within 4km
+  for (const [sid, coords] of Object.entries(stopLatLng)) {
+    // Only show parent stations (no N/S children) and skip the selected stop
+    if (sid === STOP_ID) continue;
+    if (stopParentMap[sid]) continue; // skip child stops
+
+    const dist = getDistanceFromLatLonInKm(lat, lon, coords[0], coords[1]);
+    if (dist > 4) continue;
+
+    L.rectangle(
+      [[coords[0] - 0.0003, coords[1] - 0.0003],
+       [coords[0] + 0.0003, coords[1] + 0.0003]],
+      {
+        color: "#aaa",
+        weight: 1,
+        fillColor: "#555",
+        fillOpacity: 0.8
+      }
+    ).addTo(map)
+      .bindPopup(`${stopNameMap[sid] || sid}<br>ID: ${sid}`);
+  }
 }
 
 // Extract a unix timestamp from a protobuf time field (handles Long objects)
