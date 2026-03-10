@@ -241,7 +241,7 @@ async function renderMapIfNeeded() {
 
   const [lat, lon] = stopLatLng[STOP_ID] || [40.7128, -74.006];
 
-  map = L.map("map").setView([lat, lon], 15);
+  map = L.map("map").setView([lat, lon], 14);
   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
     attribution: "Map data &copy; OpenStreetMap contributors"
   }).addTo(map);
@@ -384,7 +384,7 @@ function renderTrainsFromFeeds(feeds) {
   for (const train of trains) {
     if (stopLat && stopLon) {
       const dist = getDistanceFromLatLonInKm(train.lat, train.lon, stopLat, stopLon);
-      if (dist > 2) continue;
+      if (dist > 4) continue;
     }
 
     const color = ROUTE_COLORS[train.routeId] || "#808183";
