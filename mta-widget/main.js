@@ -239,63 +239,164 @@ async function renderMapIfNeeded() {
     .bindPopup(`Stop ${STOP_ID}<br>${stopNameMap[STOP_ID] || "Unknown"}`);
 }
 
-async function fetchAndRenderPositions() {
-  if (!map || !window.L) return;
+// Extract a unix timestamp from a protobuf time field (handles Long objects)
+function toUnix(timeField) {
+  if (!timeField) return 0;
+  const t = timeField.low !== undefined ? timeField.low : timeField;
+  return typeof t === 'object' && t.toNumber ? t.toNumber() : Number(t) || 0;
+}
 
+// Interpolate a train's position between two stops based on current time
+function interpolatePosition(prevStop, nextStop, now) {
+  const prevCoord = stopLatLng[prevStop.stopId];
+  const nextCoord = stopLatLng[nextStop.stopId];
+  if (!prevCoord || !nextCoord) return null;
+
+  const departTime = toUnix(prevStop.departure?.time) || toUnix(prevStop.arrival?.time);
+  const arriveTime = toUnix(nextStop.arrival?.time) || toUnix(nextStop.departure?.time);
+
+  if (!departTime || !arriveTime || arriveTime <= departTime) return null;
+
+  // Clamp progress between 0 and 1
+  let progress = (now - departTime) / (arriveTime - departTime);
+  progress = Math.max(0, Math.min(1, progress));
+
+  const lat = prevCoord[0] + (nextCoord[0] - prevCoord[0]) * progress;
+  const lon = prevCoord[1] + (nextCoord[1] - prevCoord[1]) * progress;
+  return [lat, lon];
+}
+
+// Find estimated positions for all active trains from TripUpdate data
+function estimateTrainPositions(feeds) {
+  const now = Date.now() / 1000;
+  const trains = [];
+
+  for (const message of feeds) {
+    if (!message) continue;
+
+    for (const entity of message.entity) {
+      const tu = entity.tripUpdate;
+      if (!tu || !tu.stopTimeUpdate || tu.stopTimeUpdate.length < 2) continue;
+
+      const routeId = tu.trip?.routeId;
+      if (ROUTE_NAME && routeId !== ROUTE_NAME.toUpperCase()) continue;
+
+      const stops = tu.stopTimeUpdate;
+
+      // Find the segment the train is currently on:
+      // Look for consecutive stops where departure of prev <= now <= arrival of next
+      let estimated = null;
+      let prevStopName = "";
+      let nextStopName = "";
+
+      for (let i = 0; i < stops.length - 1; i++) {
+        const prev = stops[i];
+        const next = stops[i + 1];
+
+        const prevDepart = toUnix(prev.departure?.time) || toUnix(prev.arrival?.time);
+        const nextArrive = toUnix(next.arrival?.time) || toUnix(next.departure?.time);
+
+        if (!prevDepart || !nextArrive) continue;
+
+        // Train is between these two stops right now
+        if (prevDepart <= now && now <= nextArrive) {
+          estimated = interpolatePosition(prev, next, now);
+          prevStopName = stopNameMap[prev.stopId] || prev.stopId;
+          nextStopName = stopNameMap[next.stopId] || next.stopId;
+          break;
+        }
+      }
+
+      // If no current segment found, check if train is at/approaching first future stop
+      if (!estimated) {
+        const firstArrival = toUnix(stops[0].arrival?.time) || toUnix(stops[0].departure?.time);
+        if (firstArrival && firstArrival > now && firstArrival - now < 120) {
+          // Train is approaching the first listed stop (within 2 min)
+          const coord = stopLatLng[stops[0].stopId];
+          if (coord) {
+            estimated = coord;
+            nextStopName = stopNameMap[stops[0].stopId] || stops[0].stopId;
+            prevStopName = "approaching";
+          }
+        }
+      }
+
+      if (!estimated) continue;
+
+      const direction = stops[0].stopId?.endsWith("N") ? "Uptown" :
+                        stops[0].stopId?.endsWith("S") ? "Downtown" : "";
+
+      trains.push({
+        tripId: tu.trip.tripId,
+        routeId: routeId,
+        lat: estimated[0],
+        lon: estimated[1],
+        direction: direction,
+        prevStop: prevStopName,
+        nextStop: nextStopName
+      });
+    }
+  }
+
+  return trains;
+}
+
+// Cache last fetched feeds for smooth re-interpolation between API calls
+let cachedFeeds = null;
+
+function reinterpolatePositions() {
+  if (!cachedFeeds || !map || !window.L) return;
+  renderTrainsFromFeeds(cachedFeeds);
+}
+
+function renderTrainsFromFeeds(feeds) {
   if (window.vehicleLayerGroup) {
     window.vehicleLayerGroup.clearLayers();
   } else {
     window.vehicleLayerGroup = L.layerGroup().addTo(map);
   }
 
-  const feedUrls = getFeedUrlsToQuery();
   const stopLat = stopLatLng[STOP_ID]?.[0];
   const stopLon = stopLatLng[STOP_ID]?.[1];
+  const trains = estimateTrainPositions(feeds);
+
+  for (const train of trains) {
+    if (stopLat && stopLon) {
+      const dist = getDistanceFromLatLonInKm(train.lat, train.lon, stopLat, stopLon);
+      if (dist > 2) continue;
+    }
+
+    const color = ROUTE_COLORS[train.routeId] || "#808183";
+    const dir = train.direction ? ` (${train.direction})` : "";
+    const routeName = getRouteName(train.routeId);
+
+    const marker = L.circleMarker([train.lat, train.lon], {
+      radius: 8,
+      fillColor: color,
+      color: "#fff",
+      weight: 2,
+      opacity: 1,
+      fillOpacity: 0.9
+    }).bindPopup(
+      `<b>${routeName} Train</b>${dir}<br>` +
+      `${train.prevStop} → ${train.nextStop}`
+    );
+
+    marker.addTo(window.vehicleLayerGroup);
+  }
+}
+
+async function fetchAndRenderPositions() {
+  if (!map || !window.L) return;
+
+  const feedUrls = getFeedUrlsToQuery();
 
   try {
     const feeds = await Promise.all(feedUrls.map(url => fetchFeed(url).catch(() => null)));
-
-    for (const message of feeds) {
-      if (!message) continue;
-
-      for (const entity of message.entity) {
-        const vehicle = entity.vehicle;
-        if (!vehicle || !vehicle.trip) continue;
-
-        const vehicleRouteId = vehicle.trip.routeId?.trim();
-        if (ROUTE_NAME && vehicleRouteId !== ROUTE_NAME.toUpperCase()) continue;
-
-        const vehicleLat = vehicle.position?.latitude;
-        const vehicleLon = vehicle.position?.longitude;
-        const vehicleId = vehicle.vehicle?.id || vehicle.trip.tripId;
-
-        if (!vehicleLat || !vehicleLon) continue;
-
-        // Filter by proximity to stop (2km)
-        if (stopLat && stopLon) {
-          const dist = getDistanceFromLatLonInKm(vehicleLat, vehicleLon, stopLat, stopLon);
-          if (dist > 2) continue;
-        }
-
-        const color = ROUTE_COLORS[vehicleRouteId] || "#808183";
-        const direction = vehicle.trip.directionId === 0 ? "Uptown" :
-                         vehicle.trip.directionId === 1 ? "Downtown" : "";
-
-        // Create a colored circle marker for subway trains
-        const marker = L.circleMarker([vehicleLat, vehicleLon], {
-          radius: 8,
-          fillColor: color,
-          color: "#fff",
-          weight: 2,
-          opacity: 1,
-          fillOpacity: 0.9
-        }).bindPopup(`${getRouteName(vehicleRouteId)} Train ${direction}<br>ID: ${vehicleId}`);
-
-        marker.addTo(window.vehicleLayerGroup);
-      }
-    }
+    cachedFeeds = feeds;
+    renderTrainsFromFeeds(feeds);
   } catch (err) {
-    console.warn("Error fetching vehicle positions:", err);
+    console.warn("Error estimating train positions:", err);
   }
 }
 
@@ -325,5 +426,7 @@ function deg2rad(deg) {
   updatePageTitle(ROUTE_NAME, stopNameMap[STOP_ID]);
 
   setInterval(fetchSubwayTimes, 60000);
+  // Re-fetch feeds every 60s, but re-render interpolated positions every 10s for smooth tracking
   setInterval(fetchAndRenderPositions, 60000);
+  setInterval(reinterpolatePositions, 10000);
 })();
