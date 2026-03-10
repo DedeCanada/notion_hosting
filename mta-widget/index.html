@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MTA Subway Times</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="protobuf.min.js"></script>
+  <script src="main.js" defer></script>
+</head>
+<body>
+  <div class="container">
+    <h1 id="stop-title">Loading...</h1>
+    <button id="reload-btn" onclick="fetchSubwayTimes()">&#x27F3;</button>
+      <div class="content">
+        <pre id="output">Fetching data...</pre>
+        <div id="map" style="height: 400px"></div>
+      </div>
+      <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+      <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    </div>
+  </body>
+</html>
