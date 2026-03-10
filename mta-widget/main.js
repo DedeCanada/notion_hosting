@@ -246,8 +246,14 @@ async function renderMapIfNeeded() {
     attribution: "Map data &copy; OpenStreetMap contributors"
   }).addTo(map);
 
-  stopMarker = L.marker([lat, lon])
-    .addTo(map)
+  stopMarker = L.circleMarker([lat, lon], {
+    radius: 10,
+    fillColor: "#fff",
+    color: "#333",
+    weight: 3,
+    opacity: 1,
+    fillOpacity: 1
+  }).addTo(map)
     .bindPopup(`Stop ${STOP_ID}<br>${stopNameMap[STOP_ID] || "Unknown"}`);
 }
 
