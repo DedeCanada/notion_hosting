@@ -1,6 +1,7 @@
 const PROTO_FILE = "transit.proto";
 const STOP_ID = getParam("stop") || null;   // e.g. "127" for Times Sq-42 St
 const ROUTE_NAME = getParam("route") || null; // e.g. "1", "A", "N"
+const DIRECTION = getParam("dir") || null;   // "uptown" or "downtown"
 const STOPS_TXT = "stops.txt";
 const ROUTES_TXT = "routes.txt";
 
@@ -96,11 +97,18 @@ async function loadTransitData() {
   console.log("Loaded routes:", Object.keys(routeMap).length);
 }
 
-// Get all stop_ids to match for a given parent stop
+// Get stop_ids to match, filtered by direction if specified
 function getStopIdsForStop(parentId) {
   if (!parentId) return [];
   const children = stopChildrenMap[parentId] || [];
-  return children.length > 0 ? children : [parentId];
+  const ids = children.length > 0 ? children : [parentId];
+
+  if (DIRECTION) {
+    const suffix = DIRECTION.toLowerCase() === "uptown" ? "N" : "S";
+    const filtered = ids.filter(id => id.endsWith(suffix));
+    return filtered.length > 0 ? filtered : ids;
+  }
+  return ids;
 }
 
 function formatUnixTime(unix) {
@@ -131,7 +139,8 @@ function getRouteName(routeId) {
 function updatePageTitle(routeName, stopName) {
   const routeTitle = routeName || "ALL";
   const stopTitle = stopName || "ALL";
-  const title = `${stopTitle} (${routeTitle})`;
+  const dirLabel = DIRECTION ? ` - ${DIRECTION.charAt(0).toUpperCase() + DIRECTION.slice(1)}` : "";
+  const title = `${stopTitle} (${routeTitle})${dirLabel}`;
   document.title = title;
   document.getElementById("stop-title").innerText = title;
 }
@@ -190,6 +199,9 @@ async function fetchSubwayTimes() {
           if (arrTime && arrTime < Date.now() / 1000 - 60) continue;
 
           const direction = stu.stopId?.endsWith("N") ? "Uptown" : stu.stopId?.endsWith("S") ? "Downtown" : "";
+
+          // Filter by direction parameter
+          if (DIRECTION && direction.toLowerCase() !== DIRECTION.toLowerCase()) continue;
 
           liveBusEntries.push({
             tripId: tu.trip.tripId,
@@ -325,6 +337,9 @@ function estimateTrainPositions(feeds) {
 
       const direction = stops[0].stopId?.endsWith("N") ? "Uptown" :
                         stops[0].stopId?.endsWith("S") ? "Downtown" : "";
+
+      // Filter by direction parameter
+      if (DIRECTION && direction.toLowerCase() !== DIRECTION.toLowerCase()) continue;
 
       trains.push({
         tripId: tu.trip.tripId,
