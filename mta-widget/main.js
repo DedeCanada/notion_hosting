@@ -266,16 +266,17 @@ async function renderMapIfNeeded() {
     if (dist > 4) continue;
 
     L.rectangle(
-      [[coords[0] - 0.0003, coords[1] - 0.0003],
-       [coords[0] + 0.0003, coords[1] + 0.0003]],
+      [[coords[0] - 0.0006, coords[1] - 0.0006],
+       [coords[0] + 0.0006, coords[1] + 0.0006]],
       {
-        color: "#aaa",
-        weight: 1,
-        fillColor: "#555",
-        fillOpacity: 0.8
+        color: "#fff",
+        weight: 2,
+        fillColor: "#e0e0e0",
+        fillOpacity: 0.9,
+        interactive: true
       }
     ).addTo(map)
-      .bindPopup(`${stopNameMap[sid] || sid}<br>ID: ${sid}`);
+      .bindPopup(`<b>${stopNameMap[sid] || sid}</b><br>Stop ID: ${sid}`);
   }
 }
 
