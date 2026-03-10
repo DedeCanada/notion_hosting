@@ -258,17 +258,15 @@ async function renderMapIfNeeded() {
     const dist = getDistanceFromLatLonInKm(lat, lon, coords[0], coords[1]);
     if (dist > 4) continue;
 
-    L.rectangle(
-      [[coords[0] - 0.0003, coords[1] - 0.0003],
-       [coords[0] + 0.0003, coords[1] + 0.0003]],
-      {
-        color: "#000",
-        weight: 1,
-        fillColor: "#000",
-        fillOpacity: 0.9,
-        interactive: true
-      }
-    ).addTo(map)
+    L.marker([coords[0], coords[1]], {
+      icon: L.divIcon({
+        className: '',
+        html: '<div style="width:10px;height:10px;background:#000;border:1px solid #fff;"></div>',
+        iconSize: [10, 10],
+        iconAnchor: [5, 5]
+      }),
+      interactive: true
+    }).addTo(map)
       .bindPopup(`<b>${stopNameMap[sid] || sid}</b><br>Stop ID: ${sid}`);
   }
 }
