@@ -55,9 +55,11 @@ let storagePath      = null;   // hex string — Firebase path segment
 let activePassphrase = null;   // kept so the copy-link button can encode it
 
 // Drag-pan state
-let isDragging     = false;
-let dragStartX     = 0;
-let dragScrollLeft = 0;
+let isDragging      = false;
+let dragStartX      = 0;
+let dragStartY      = 0;
+let dragScrollLeft  = 0;
+let dragScrollTop   = 0;
 
 // Auto-save debounce
 let saveTimer = null;
@@ -95,7 +97,9 @@ outer.addEventListener('mousedown', e => {
   if (e.target.closest('.tl-item, .tl-label, .tl-header-corner')) return;
   isDragging     = true;
   dragStartX     = e.clientX;
+  dragStartY     = e.clientY;
   dragScrollLeft = outer.scrollLeft;
+  dragScrollTop  = outer.scrollTop;
   outer.classList.add('dragging');
   e.preventDefault();
 });
@@ -103,6 +107,7 @@ outer.addEventListener('mousedown', e => {
 document.addEventListener('mousemove', e => {
   if (!isDragging) return;
   outer.scrollLeft = dragScrollLeft - (e.clientX - dragStartX);
+  outer.scrollTop  = dragScrollTop  - (e.clientY - dragStartY);
 });
 
 document.addEventListener('mouseup', () => {
@@ -111,18 +116,52 @@ document.addEventListener('mouseup', () => {
   outer.classList.remove('dragging');
 });
 
+let pinchStartDist    = 0;
+let pinchStartPPD     = 0;
+let pinchCenterX      = 0;
+let pinchScrollLeft   = 0;
+
+function touchDist(t) {
+  const dx = t[0].clientX - t[1].clientX;
+  const dy = t[0].clientY - t[1].clientY;
+  return Math.sqrt(dx * dx + dy * dy);
+}
+
 outer.addEventListener('touchstart', e => {
-  if (tableMode || e.touches.length !== 1) return;
+  if (tableMode) return;
+  if (e.touches.length === 2) {
+    isDragging       = false;
+    pinchStartDist   = touchDist(e.touches);
+    pinchStartPPD    = pixelsPerDay;
+    pinchCenterX     = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+    pinchScrollLeft  = outer.scrollLeft;
+    return;
+  }
+  if (e.touches.length !== 1) return;
   if (e.target.closest('.tl-item, .tl-label')) return;
   isDragging     = true;
   dragStartX     = e.touches[0].clientX;
+  dragStartY     = e.touches[0].clientY;
   dragScrollLeft = outer.scrollLeft;
+  dragScrollTop  = outer.scrollTop;
 }, { passive: true });
 
 outer.addEventListener('touchmove', e => {
+  if (tableMode) return;
+  if (e.touches.length === 2) {
+    e.preventDefault();
+    const dist   = touchDist(e.touches);
+    const factor = dist / pinchStartDist;
+    const day    = (pinchScrollLeft + pinchCenterX - SIDEBAR_W) / pinchStartPPD;
+    pixelsPerDay = Math.max(2, Math.min(120, pinchStartPPD * factor));
+    render();
+    outer.scrollLeft = day * pixelsPerDay - pinchCenterX + SIDEBAR_W;
+    return;
+  }
   if (!isDragging || e.touches.length !== 1) return;
   outer.scrollLeft = dragScrollLeft - (e.touches[0].clientX - dragStartX);
-}, { passive: true });
+  outer.scrollTop  = dragScrollTop  - (e.touches[0].clientY - dragStartY);
+}, { passive: false });
 
 outer.addEventListener('touchend', () => { isDragging = false; });
 
