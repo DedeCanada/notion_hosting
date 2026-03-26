@@ -189,7 +189,30 @@ async function renderMapIfNeeded() {
 
   stopMarker = L.marker([lat, lon])
     .addTo(map)
-    .bindPopup(`Stop ${STOP_CODE}\nName ${getStopName(stopId)}`);
+    .bindPopup(`<b>${getStopName(stopId)}</b><br>Stop #${STOP_CODE}`);
+
+  // Build reverse map: stop_id -> stop_code
+  const idToCode = {};
+  for (const [code, id] of Object.entries(stopCodeMap)) idToCode[id] = code;
+
+  // Render nearby stops as clickable markers
+  for (const [sid, scoords] of Object.entries(stopLatLng)) {
+    if (sid === stopId) continue;
+    if (isNaN(scoords[0]) || isNaN(scoords[1])) continue;
+    const dist = getDistanceFromLatLonInKm(lat, lon, scoords[0], scoords[1]);
+    if (dist > 2) continue;
+    const code = idToCode[sid] || sid;
+    L.marker([scoords[0], scoords[1]], {
+      icon: L.divIcon({
+        className: '',
+        html: '<div style="width:10px;height:10px;background:#000;border:1px solid #fff;border-radius:2px;"></div>',
+        iconSize: [10, 10],
+        iconAnchor: [5, 5]
+      }),
+      interactive: true
+    }).addTo(map)
+      .bindPopup(`<b>${getStopName(sid) || sid}</b><br>Stop #${code}`);
+  }
 }
 
 async function fetchAndRenderPositions() {
