@@ -4,10 +4,13 @@ const FEED_URL = "https://translink-proxy.onrender.com/gtfsrealtime";
 let stopCodeToId = {};
 let routeShortNameToId = {};
 let stopNameMap = {};
+let stopLatLng = {};
+let stopCodeMap = {}; // stop_id -> stop_code
 let routeNameMap = {};
 let STOP_ID = "NONE";
 let ROUTE_ID = "ALL";
 let liveBusEntries = [];
+let map, stopMarker;
 
 function getQueryParam(key, fallback = "") {
   const params = new URLSearchParams(window.location.search);
@@ -23,8 +26,12 @@ async function loadTransitData() {
   stopsText.split("\n").forEach(line => {
     const [lat, wb, stop_code, lon, stop_id,,,, stop_name] = line.split(",");
     if (stop_id && stop_code && stop_id !== "stop_id") {
-      stopCodeToId[stop_code.trim()] = stop_id.trim();
-      stopNameMap[stop_id.trim()] = stop_name?.trim() || stop_id.trim();
+      const id = stop_id.trim();
+      const code = stop_code.trim();
+      stopCodeToId[code] = id;
+      stopNameMap[id] = stop_name?.trim() || id;
+      stopCodeMap[id] = code;
+      stopLatLng[id] = [parseFloat(lat), parseFloat(lon)];
     }
   });
 
@@ -137,6 +144,54 @@ Route: ${getRouteName(entry.routeId)}
     : "No upcoming buses for stop " + STOP_ID + " on route " + ROUTE_ID;
 }
 
+function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
+  const R = 6371;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
+}
+
+async function renderMapIfNeeded() {
+  if (STOP_ID === "NONE") return;
+
+  const coords = stopLatLng[STOP_ID];
+  if (!coords) return;
+
+  const [lat, lon] = coords;
+
+  map = L.map("map").setView([lat, lon], 15);
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    attribution: "Map data &copy; OpenStreetMap contributors"
+  }).addTo(map);
+
+  const selectedCode = stopCodeMap[STOP_ID] || STOP_ID;
+  stopMarker = L.marker([lat, lon]).addTo(map)
+    .bindPopup(`<b>${stopNameMap[STOP_ID] || STOP_ID}</b><br>Stop #${selectedCode}`);
+
+  // Render nearby stops as small squares
+  for (const [sid, scoords] of Object.entries(stopLatLng)) {
+    if (sid === STOP_ID) continue;
+    const dist = getDistanceFromLatLonInKm(lat, lon, scoords[0], scoords[1]);
+    if (dist > 2) continue;
+
+    const code = stopCodeMap[sid] || sid;
+    L.marker([scoords[0], scoords[1]], {
+      icon: L.divIcon({
+        className: '',
+        html: '<div style="width:10px;height:10px;background:#000;border:1px solid #fff;"></div>',
+        iconSize: [10, 10],
+        iconAnchor: [5, 5]
+      }),
+      interactive: true
+    }).addTo(map)
+      .bindPopup(`<b>${stopNameMap[sid] || sid}</b><br>Stop #${code}`);
+  }
+}
+
 (async () => {
   const STOP_CODE = getQueryParam("stop", "NONE");
   const ROUTE_SHORT_NAME = getQueryParam("route", "ALL");
@@ -154,6 +209,13 @@ Route: ${getRouteName(entry.routeId)}
 
   await fetchBusTimes();
   renderLiveCountdown();
+
+  if (STOP_ID !== "NONE") {
+    await renderMapIfNeeded();
+  } else {
+    document.getElementById("map").classList.add("hidden");
+  }
+
   setInterval(fetchBusTimes, 60000);
   setInterval(renderLiveCountdown, 1000);
 })();

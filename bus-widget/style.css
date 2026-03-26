@@ -34,4 +34,43 @@ pre {
   padding: 1rem;
   border-radius: 8px;
   overflow-x: auto;
+  margin: 0;
+  flex: 1 1 50%;
+  min-width: 200px;
+  box-sizing: border-box;
+}
+
+.content {
+  display: flex;
+  flex-direction: row;
+  gap: 0.5rem;
+  flex-wrap: nowrap;
+}
+
+#map {
+  flex: 1 1 50%;
+  min-height: 300px;
+  height: 400px;
+  border-radius: 8px;
+  box-sizing: border-box;
+  min-width: 200px;
+}
+
+.hidden {
+  display: none !important;
+}
+
+@media (max-width: 768px) {
+  .content {
+    flex-direction: column;
+  }
+
+  #map {
+    height: 300px;
+    width: 100%;
+  }
+
+  pre {
+    width: 100%;
+  }
 }
