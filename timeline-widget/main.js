@@ -82,6 +82,13 @@ const passphraseOver = document.getElementById('passphrase-overlay');
 const passphraseInput= document.getElementById('passphrase-input');
 const passphraseErr  = document.getElementById('passphrase-error');
 
+// ── Scroll-to-pan ──────────────────────────────────────
+outer.addEventListener('wheel', e => {
+  if (tableMode) return;
+  e.preventDefault();
+  outer.scrollLeft += e.deltaY !== 0 ? e.deltaY : e.deltaX;
+}, { passive: false });
+
 // ── Drag-to-pan ────────────────────────────────────────
 outer.addEventListener('mousedown', e => {
   if (tableMode || e.button !== 0) return;
@@ -121,8 +128,26 @@ outer.addEventListener('touchend', () => { isDragging = false; });
 
 // ── Date utils ─────────────────────────────────────────
 function parseDate(str) {
-  const [y, m, d] = str.split('-').map(Number);
-  return new Date(y, m - 1, d);
+  if (!str) return new Date(NaN);
+  // YYYY-MM-DD (native format from date inputs)
+  if (/^\d{4}-\d{1,2}-\d{1,2}$/.test(str)) {
+    const [y, m, d] = str.split('-').map(Number);
+    return new Date(y, m - 1, d);
+  }
+  // M/D/YYYY or MM/DD/YYYY (Excel/CSV export format)
+  if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(str)) {
+    const [m, d, y] = str.split('/').map(Number);
+    return new Date(y, m - 1, d);
+  }
+  // Fallback: let the browser try
+  const d = new Date(str);
+  return isNaN(d) ? new Date(NaN) : d;
+}
+
+function fmtDisplayDate(str) {
+  const d = parseDate(str);
+  if (isNaN(d)) return str;
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
 function daysBetween(a, b) {
@@ -298,7 +323,8 @@ function renderHeader(parent, totalWidth, innerWidth) {
     }
   } else if (pixelsPerDay >= 7) {
     let day = new Date(minDate);
-    while (day.getDay() !== 1) day.setDate(day.getDate() + 1);
+    let safety = 0;
+    while (day.getDay() !== 1 && safety++ < 7) day.setDate(day.getDate() + 1);
     while (day <= maxDate) {
       const x = dateToX(day);
       const t = el('div', 'tl-tick-line');
@@ -502,6 +528,16 @@ function makeTblCell(item, field, type, className, placeholder) {
   const evt = type === 'date' ? 'change' : 'input';
   input.addEventListener(evt, e => {
     item[field] = e.target.value;
+    if (type === 'date' && item.start && item.end && item.start > item.end) {
+      [item.start, item.end] = [item.end, item.start];
+      // update sibling inputs in the same row
+      const row = td.closest('tr');
+      if (row) {
+        const dateInputs = row.querySelectorAll('input[type="date"]');
+        if (dateInputs[0]) dateInputs[0].value = item.start;
+        if (dateInputs[1]) dateInputs[1].value = item.end;
+      }
+    }
     scheduleSave();
   });
   td.appendChild(input);
@@ -518,7 +554,7 @@ function showPopup(item, event) {
   popup.innerHTML = `
     <div class="popup-header" style="background:${color};color:${tc}">
       <div class="popup-name">${escHtml(item.name)}</div>
-      <div class="popup-dates">${item.start} → ${item.end}</div>
+      <div class="popup-dates">${fmtDisplayDate(item.start)} – ${fmtDisplayDate(item.end)}</div>
     </div>
     <div class="popup-body">
       ${item.category ? `<div class="popup-cat">${escHtml(item.category)}</div>` : ''}
@@ -619,7 +655,7 @@ function saveModal() {
 
   if (!name)        { fName.focus(); return; }
   if (!start||!end) { return; }
-  if (start > end)  { fEnd.focus(); return; }
+  if (start > end)  { [fStart.value, fEnd.value] = [end, start]; return saveModal(); }
 
   if (editingId) {
     const idx = items.findIndex(i => i.id === editingId);
@@ -680,9 +716,10 @@ document.getElementById('import-file').addEventListener('change', e => {
   const file = e.target.files[0];
   if (!file) return;
   const reader = new FileReader();
+  reader.onerror = () => { showImportStatus('error', 'Could not read file.'); };
   reader.onload = ev => {
     try {
-      const text = ev.target.result;
+      const text = ev.target.result.replace(/^\uFEFF/, '');
       let rows;
       if (file.name.toLowerCase().endsWith('.json')) {
         const parsed = JSON.parse(text);
@@ -693,32 +730,40 @@ document.getElementById('import-file').addEventListener('change', e => {
       }
       const newItems = rows
         .filter(d => d.name || d.start)
-        .map(d => ({
-          id:          uid(),
-          name:        String(d.name        || ''),
-          start:       String(d.start       || fmtDate(new Date())),
-          end:         String(d.end         || dayStr(7)),
-          category:    String(d.category    || ''),
-          color:       /^#[0-9a-f]{6}$/i.test(d.color||'') ? d.color : '#4a9eff',
-          description: String(d.description || ''),
-        }));
-      if (!newItems.length) { alert('No valid rows found.'); return; }
-      const msg = items.length
-        ? `Replace ${items.length} existing item(s) with ${newItems.length} imported item(s)?`
-        : null;
-      if (!msg || confirm(msg)) {
-        items = newItems;
-        scheduleSave();
-        render();
-        if (!tableMode) setTimeout(() => scrollToToday(false), 30);
-      }
+        .map(d => {
+          const ps = parseDate(d.start); const pe = parseDate(d.end);
+          let start = isNaN(ps) ? fmtDate(new Date()) : fmtDate(ps);
+          let end   = isNaN(pe) ? dayStr(7)           : fmtDate(pe);
+          if (start > end) [start, end] = [end, start];
+          return {
+            id:          uid(),
+            name:        String(d.name        || ''),
+            start,
+            end,
+            category:    String(d.category    || ''),
+            color:       /^#[0-9a-f]{6}$/i.test(d.color||'') ? d.color : '#4a9eff',
+            description: String(d.description || ''),
+          };
+        });
+      if (!newItems.length) { showImportStatus('error', 'No valid rows found.'); return; }
+      items = newItems;
+      scheduleSave();
+      render();
+      showImportStatus('ok', `Imported ${newItems.length} item${newItems.length !== 1 ? 's' : ''}`);
+      if (!tableMode) setTimeout(() => scrollToToday(false), 30);
     } catch (err) {
-      alert('Import failed: ' + err.message);
+      showImportStatus('error', 'Import failed: ' + err.message);
+      console.error('Import error:', err);
     }
     e.target.value = '';
   };
   reader.readAsText(file);
 });
+
+function showImportStatus(type, msg) {
+  setSaveStatus(type === 'ok' ? 'saved' : 'error', msg);
+  setTimeout(() => setSaveStatus('', ''), 4000);
+}
 
 function parseCSV(text) {
   const lines = text.replace(/\r\n/g,'\n').replace(/\r/g,'\n').trim().split('\n');
