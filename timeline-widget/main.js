@@ -84,7 +84,9 @@ const passphraseOver = document.getElementById('passphrase-overlay');
 const passphraseInput= document.getElementById('passphrase-input');
 const passphraseErr  = document.getElementById('passphrase-error');
 
-// ── Scroll-to-pan ──────────────────────────────────────
+// ── Scroll-to-pan & sticky labels ──────────────────────
+outer.addEventListener('scroll', () => { if (!tableMode) updateStickyLabels(); });
+
 outer.addEventListener('wheel', e => {
   if (tableMode) return;
   e.preventDefault();
@@ -305,6 +307,17 @@ function renderTimeline() {
   }
 
   for (const group of groupByCategory()) renderSection(inner, group, totalWidth);
+  requestAnimationFrame(updateStickyLabels);
+}
+
+function updateStickyLabels() {
+  const PADDING = 9;
+  outer.querySelectorAll('.tl-item').forEach(bar => {
+    const rect     = bar.getBoundingClientRect();
+    const hidden   = Math.max(0, SIDEBAR_W - rect.left);
+    const maxShift = Math.max(0, rect.width - PADDING - 16);
+    bar.style.paddingLeft = (PADDING + Math.min(hidden, maxShift)) + 'px';
+  });
 }
 
 function renderHeader(parent, totalWidth, innerWidth) {
