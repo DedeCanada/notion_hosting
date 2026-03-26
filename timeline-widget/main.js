@@ -50,8 +50,9 @@ let tableMode    = false;
 let minDate, maxDate;
 
 // Cloud storage state
-let cryptoKey   = null;   // CryptoKey — AES-GCM
-let storagePath = null;   // hex string — Firebase path segment
+let cryptoKey        = null;   // CryptoKey — AES-GCM
+let storagePath      = null;   // hex string — Firebase path segment
+let activePassphrase = null;   // kept so the copy-link button can encode it
 
 // Drag-pan state
 let isDragging     = false;
@@ -882,8 +883,13 @@ async function submitPassphrase() {
       }
     }
 
-    cryptoKey   = key;
-    storagePath = hash;
+    cryptoKey        = key;
+    storagePath      = hash;
+    activePassphrase = pass;
+
+    // Reflect the key in the URL so reloads and Notion embeds stay logged in
+    const encoded = encodeURIComponent(pass);
+    history.replaceState(null, '', `${location.pathname}?pass=${encoded}`);
 
     if (document.getElementById('remember-key').checked) {
       localStorage.setItem('tl_passphrase', pass);
@@ -932,8 +938,19 @@ document.getElementById('add-btn').addEventListener('click', () => openModal(nul
 document.getElementById('modal-cancel').addEventListener('click', closeModal);
 document.getElementById('modal-save').addEventListener('click', saveModal);
 document.getElementById('modal-delete').addEventListener('click', deleteItem);
+document.getElementById('copy-link-btn').addEventListener('click', () => {
+  if (!activePassphrase) return;
+  const url = `${location.origin}${location.pathname}?pass=${encodeURIComponent(activePassphrase)}`;
+  navigator.clipboard.writeText(url).then(() => {
+    const btn = document.getElementById('copy-link-btn');
+    btn.textContent = '✓';
+    setTimeout(() => { btn.textContent = '🔗'; }, 2000);
+  });
+});
+
 document.getElementById('lock-btn').addEventListener('click', () => {
   localStorage.removeItem('tl_passphrase');
+  activePassphrase = null;
   showPassphraseModal(null);
 });
 
@@ -956,7 +973,10 @@ render();
 
 // Then unlock — priority: ?pass= URL param → localStorage → prompt
 (async () => {
-  const urlPass = new URLSearchParams(window.location.search).get('pass');
+  // Use a raw regex + decodeURIComponent instead of URLSearchParams so that
+  // Base64 characters like +, =, and / survive the round-trip correctly.
+  const m       = window.location.search.match(/[?&]pass=([^&#]*)/);
+  const urlPass = m ? decodeURIComponent(m[1]) : null;
   const saved   = localStorage.getItem('tl_passphrase');
   const pass    = urlPass || saved;
 
