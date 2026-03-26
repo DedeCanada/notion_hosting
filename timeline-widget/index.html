@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Timeline</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="toolbar">
+    <span class="app-title">Timeline</span>
+    <div class="toolbar-right">
+      <button class="btn btn-toggle" id="edit-mode-btn" title="Toggle edit mode">✎ Edit</button>
+      <button class="btn btn-toggle" id="table-mode-btn" title="Toggle table view">⊞ Table</button>
+      <span class="toolbar-sep"></span>
+      <button class="btn" id="import-btn" title="Import CSV or JSON">↑ Import</button>
+      <button class="btn" id="export-btn" title="Export as CSV">↓ Export</button>
+      <span class="toolbar-sep"></span>
+      <span id="zoom-controls">
+        <button class="btn" id="zoom-out" title="Zoom out">−</button>
+        <button class="btn" id="zoom-in" title="Zoom in">+</button>
+        <button class="btn" id="today-btn">Today</button>
+      </span>
+      <button class="btn btn-primary" id="add-btn">+ Add Item</button>
+      <span class="toolbar-sep"></span>
+      <span class="save-status" id="save-status"></span>
+      <button class="btn btn-icon" id="lock-btn" title="Change key">🔑</button>
+    </div>
+  </div>
+
+  <div class="timeline-outer" id="timeline-outer">
+    <div class="timeline-inner" id="timeline-inner"></div>
+  </div>
+
+  <!-- Item view popup (shown in non-edit mode) -->
+  <div class="item-popup hidden" id="item-popup"></div>
+
+  <!-- Passphrase modal — shown on load if Firebase is configured -->
+  <div class="modal-overlay" id="passphrase-overlay">
+    <div class="modal">
+      <h2 id="passphrase-title">🔑 Enter your key</h2>
+      <p class="modal-hint">Your timeline is encrypted with this key. Use the same key on any device to access your data. <strong>There is no recovery if you forget it.</strong></p>
+      <label>Key / Passphrase
+        <input type="text" id="passphrase-input" placeholder="Enter your secret key…" autocomplete="off" />
+      </label>
+      <label class="checkbox-label">
+        <input type="checkbox" id="remember-key" checked />
+        Remember on this device
+      </label>
+      <div class="passphrase-error hidden" id="passphrase-error"></div>
+      <div class="modal-btns">
+        <div style="flex:1"></div>
+        <button class="btn btn-primary" id="passphrase-submit">Unlock</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add/Edit Item modal -->
+  <div class="modal-overlay hidden" id="modal-overlay">
+    <div class="modal">
+      <h2 id="modal-title">Add Item</h2>
+      <label>Name <input type="text" id="item-name" placeholder="Item name" autocomplete="off" /></label>
+      <div class="form-row">
+        <label>Start <input type="date" id="item-start" /></label>
+        <label>End   <input type="date" id="item-end" /></label>
+      </div>
+      <label>Category
+        <input type="text" id="item-category" placeholder="Optional" list="categories-list" autocomplete="off" />
+      </label>
+      <datalist id="categories-list"></datalist>
+      <label>Description
+        <textarea id="item-desc" rows="3" placeholder="Optional notes…"></textarea>
+      </label>
+      <label class="color-label">
+        Color
+        <div class="color-row">
+          <input type="color" id="item-color" value="#4a9eff" />
+          <div class="color-presets" id="color-presets"></div>
+        </div>
+      </label>
+      <div class="modal-btns">
+        <button class="btn btn-danger hidden" id="modal-delete">Delete</button>
+        <div style="flex:1"></div>
+        <button class="btn" id="modal-cancel">Cancel</button>
+        <button class="btn btn-primary" id="modal-save">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <input type="file" id="import-file" accept=".csv,.json" style="display:none" />
+  <script src="main.js"></script>
+</body>
+</html>
