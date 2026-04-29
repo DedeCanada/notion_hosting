@@ -74,6 +74,8 @@ const fStart         = document.getElementById('item-start');
 const fEnd           = document.getElementById('item-end');
 const fCat           = document.getElementById('item-category');
 const fColor         = document.getElementById('item-color');
+const fStartTime     = document.getElementById('item-start-time');
+const fEndTime       = document.getElementById('item-end-time');
 const fDesc          = document.getElementById('item-desc');
 const btnDelete      = document.getElementById('modal-delete');
 const editModeBtn    = document.getElementById('edit-mode-btn');
@@ -189,6 +191,18 @@ function fmtDisplayDate(str) {
   const d = parseDate(str);
   if (isNaN(d)) return str;
   return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+function fmtTime12(t) {
+  if (!t) return '';
+  const [h, m] = t.split(':').map(Number);
+  const ampm = h >= 12 ? 'pm' : 'am';
+  const h12  = h % 12 || 12;
+  return m === 0 ? `${h12}${ampm}` : `${h12}:${String(m).padStart(2,'0')}${ampm}`;
+}
+
+function isAllDay(item) {
+  return !item.startTime && !item.endTime;
 }
 
 function daysBetween(a, b) {
@@ -458,7 +472,15 @@ function renderSection(parent, group, totalWidth) {
       bar.style.color      = isLight(item.color || '#4a9eff') ? '#111' : '#fff';
 
       const span = el('span');
-      span.textContent = item.name;
+      if (!isAllDay(item) && pixelsPerDay >= 45) {
+        const parts = [item.name];
+        const ts = fmtTime12(item.startTime);
+        const te = fmtTime12(item.endTime);
+        if (ts || te) parts.push(' · ' + (ts || 'start') + '–' + (te || 'end'));
+        span.textContent = parts.join('');
+      } else {
+        span.textContent = item.name;
+      }
       bar.appendChild(span);
 
       bar.addEventListener('click', ev => {
@@ -489,7 +511,9 @@ function renderTable() {
     <th style="width:42px">Color</th>
     <th style="min-width:160px">Name</th>
     <th style="width:128px">Start</th>
+    <th style="width:90px">Time</th>
     <th style="width:128px">End</th>
+    <th style="width:90px">Time</th>
     <th style="min-width:110px">Category</th>
     <th>Description</th>
     <th style="width:36px"></th>
@@ -500,7 +524,7 @@ function renderTable() {
   for (const group of groupByCategory()) {
     const catRow  = el('tr', 'tbl-cat-row');
     const catCell = el('td');
-    catCell.colSpan = 7;
+    catCell.colSpan = 9;
     catCell.textContent = group.name || 'Uncategorized';
     catRow.appendChild(catCell);
     tbody.appendChild(catRow);
@@ -513,7 +537,7 @@ function renderTable() {
   const addBtn = el('button', 'btn table-add-btn');
   addBtn.textContent = '+ Add Row';
   addBtn.addEventListener('click', () => {
-    const newItem = { id: uid(), name: '', start: fmtDate(new Date()), end: dayStr(7), category: '', color: '#4a9eff', description: '' };
+    const newItem = { id: uid(), name: '', start: fmtDate(new Date()), startTime: '', end: dayStr(7), endTime: '', category: '', color: '#4a9eff', description: '' };
     items.push(newItem);
     scheduleSave();
     render();
@@ -549,7 +573,9 @@ function makeTableRow(item) {
 
   tr.appendChild(makeTblCell(item, 'name',        'text', 'tbl-input tbl-name',      'Item name'));
   tr.appendChild(makeTblCell(item, 'start',       'date', 'tbl-input tbl-date'));
+  tr.appendChild(makeTblCell(item, 'startTime',   'time', 'tbl-input tbl-time'));
   tr.appendChild(makeTblCell(item, 'end',         'date', 'tbl-input tbl-date'));
+  tr.appendChild(makeTblCell(item, 'endTime',     'time', 'tbl-input tbl-time'));
   const catTd = makeTblCell(item, 'category',     'text', 'tbl-input tbl-cat-input', 'Category');
   catTd.querySelector('input').setAttribute('list', 'categories-list');
   tr.appendChild(catTd);
@@ -577,7 +603,7 @@ function makeTblCell(item, field, type, className, placeholder) {
   input.value = item[field] || '';
   input.className = className;
   if (placeholder) input.placeholder = placeholder;
-  const evt = type === 'date' ? 'change' : 'input';
+  const evt = (type === 'date' || type === 'time') ? 'change' : 'input';
   input.addEventListener(evt, e => {
     item[field] = e.target.value;
     if (type === 'date' && item.start && item.end && item.start > item.end) {
@@ -603,10 +629,12 @@ function showPopup(item, event) {
   hidePopup();
   const color = item.color || '#4a9eff';
   const tc    = isLight(color) ? '#111' : '#fff';
+  const timeStr = isAllDay(item) ? ' (All day)'
+    : ` · ${fmtTime12(item.startTime) || 'start'}–${fmtTime12(item.endTime) || 'end'}`;
   popup.innerHTML = `
     <div class="popup-header" style="background:${color};color:${tc}">
       <div class="popup-name">${escHtml(item.name)}</div>
-      <div class="popup-dates">${fmtDisplayDate(item.start)} – ${fmtDisplayDate(item.end)}</div>
+      <div class="popup-dates">${fmtDisplayDate(item.start)} – ${fmtDisplayDate(item.end)}${timeStr}</div>
     </div>
     <div class="popup-body">
       ${item.category ? `<div class="popup-cat">${escHtml(item.category)}</div>` : ''}
@@ -674,12 +702,14 @@ function openModal(id) {
   const item = id ? items.find(i => i.id === id) : null;
 
   document.getElementById('modal-title').textContent = item ? 'Edit Item' : 'Add Item';
-  fName.value  = item?.name        || '';
-  fStart.value = item?.start       || fmtDate(new Date());
-  fEnd.value   = item?.end         || dayStr(7);
-  fCat.value   = item?.category    || '';
-  fColor.value = item?.color       || '#4a9eff';
-  fDesc.value  = item?.description || '';
+  fName.value      = item?.name        || '';
+  fStart.value     = item?.start       || fmtDate(new Date());
+  fStartTime.value = item?.startTime   || '';
+  fEnd.value       = item?.end         || dayStr(7);
+  fEndTime.value   = item?.endTime     || '';
+  fCat.value       = item?.category    || '';
+  fColor.value     = item?.color       || '#4a9eff';
+  fDesc.value      = item?.description || '';
   btnDelete.classList.toggle('hidden', !item);
 
   updateCatList();
@@ -698,12 +728,14 @@ function closeModal() {
 }
 
 function saveModal() {
-  const name  = fName.value.trim();
-  const start = fStart.value;
-  const end   = fEnd.value;
-  const cat   = fCat.value.trim();
-  const color = fColor.value;
-  const desc  = fDesc.value.trim();
+  const name      = fName.value.trim();
+  const start     = fStart.value;
+  const startTime = fStartTime.value || '';
+  const end       = fEnd.value;
+  const endTime   = fEndTime.value || '';
+  const cat       = fCat.value.trim();
+  const color     = fColor.value;
+  const desc      = fDesc.value.trim();
 
   if (!name)        { fName.focus(); return; }
   if (!start||!end) { return; }
@@ -711,9 +743,9 @@ function saveModal() {
 
   if (editingId) {
     const idx = items.findIndex(i => i.id === editingId);
-    if (idx !== -1) items[idx] = { ...items[idx], name, start, end, category: cat, color, description: desc };
+    if (idx !== -1) items[idx] = { ...items[idx], name, start, startTime, end, endTime, category: cat, color, description: desc };
   } else {
-    items.push({ id: uid(), name, start, end, category: cat, color, description: desc });
+    items.push({ id: uid(), name, start, startTime, end, endTime, category: cat, color, description: desc });
   }
 
   closeModal();
@@ -753,9 +785,9 @@ function csvEsc(v) {
 }
 
 function exportCSV() {
-  const header = 'name,start,end,category,color,description';
+  const header = 'name,start,startTime,end,endTime,category,color,description';
   const rows   = items.map(i =>
-    [i.name, i.start, i.end, i.category||'', i.color||'', i.description||'']
+    [i.name, i.start, i.startTime||'', i.end, i.endTime||'', i.category||'', i.color||'', i.description||'']
       .map(csvEsc).join(',')
   );
   const csv = [header, ...rows].join('\r\n');
@@ -791,7 +823,9 @@ document.getElementById('import-file').addEventListener('change', e => {
             id:          uid(),
             name:        String(d.name        || ''),
             start,
+            startTime:   String(d.startTime || d.starttime || ''),
             end,
+            endTime:     String(d.endTime || d.endtime || ''),
             category:    String(d.category    || ''),
             color:       /^#[0-9a-f]{6}$/i.test(d.color||'') ? d.color : '#4a9eff',
             description: String(d.description || ''),

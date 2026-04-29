@@ -363,6 +363,7 @@ body {
 
 .modal input[type="text"],
 .modal input[type="date"],
+.modal input[type="time"],
 .modal textarea {
   background: #2e2e2e;
   border: 1px solid #444;
@@ -381,6 +382,7 @@ body {
 }
 .modal input[type="text"]:focus,
 .modal input[type="date"]:focus,
+.modal input[type="time"]:focus,
 .modal textarea:focus {
   outline: none;
   border-color: #4a9eff;
@@ -563,6 +565,7 @@ body {
 .tbl-input:focus  { outline: none; border-color: #4a9eff; background: #2a2a2a; }
 
 .tbl-date { min-width: 120px; color-scheme: dark; }
+.tbl-time { min-width: 80px; color-scheme: dark; }
 .tbl-name { min-width: 160px; }
 .tbl-cat-input { min-width: 110px; }
 .tbl-desc-input { min-width: 200px; }

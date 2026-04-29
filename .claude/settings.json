@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Users/danie/Desktop/Code/ Dump/notion_hosting/timeline-widget/**)"
+    ]
+  }
+}
