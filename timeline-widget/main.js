@@ -157,7 +157,7 @@ outer.addEventListener('touchmove', e => {
     const dist   = touchDist(e.touches);
     const factor = dist / pinchStartDist;
     const day    = (pinchScrollLeft + pinchCenterX - SIDEBAR_W) / pinchStartPPD;
-    pixelsPerDay = Math.max(2, Math.min(120, pinchStartPPD * factor));
+    pixelsPerDay = Math.max(2, Math.min(400, pinchStartPPD * factor));
     render();
     outer.scrollLeft = day * pixelsPerDay - pinchCenterX + SIDEBAR_W;
     return;
@@ -203,6 +203,15 @@ function fmtTime12(t) {
 
 function isAllDay(item) {
   return !item.startTime && !item.endTime;
+}
+
+// Ensure every item has startTime/endTime fields (backwards compat with old data)
+function normalizeItems(arr) {
+  for (const item of arr) {
+    if (item.startTime === undefined) item.startTime = '';
+    if (item.endTime   === undefined) item.endTime   = '';
+  }
+  return arr;
 }
 
 function daysBetween(a, b) {
@@ -406,6 +415,31 @@ function renderHeader(parent, totalWidth, innerWidth) {
     }
   }
 
+  // Hour marks when zoomed in very far
+  if (pixelsPerDay >= 200) {
+    const pixelsPerHour = pixelsPerDay / 24;
+    const hourStep = pixelsPerHour >= 30 ? 1 : pixelsPerHour >= 15 ? 2 : pixelsPerHour >= 8 ? 4 : 6;
+    let day = new Date(minDate);
+    while (day <= maxDate) {
+      const dayX = dateToX(day);
+      for (let h = hourStep; h < 24; h += hourStep) {
+        const hx = dayX + (h / 24) * pixelsPerDay;
+        const tick = el('div', 'tl-tick-line');
+        Object.assign(tick.style, { left: hx+'px', top: '70%', height: '30%', background: '#333' });
+        dates.appendChild(tick);
+        if (pixelsPerHour >= 12) {
+          const lbl = el('div', 'tl-tick-label tl-hour-label');
+          lbl.style.left = (hx + 2) + 'px';
+          const ampm = h >= 12 ? 'pm' : 'am';
+          const h12  = h % 12 || 12;
+          lbl.textContent = h12 + ampm;
+          dates.appendChild(lbl);
+        }
+      }
+      day.setDate(day.getDate() + 1);
+    }
+  }
+
   const today = new Date();
   if (today >= minDate && today <= maxDate) {
     const dot = el('div', 'today-dot');
@@ -448,6 +482,24 @@ function renderSection(parent, group, totalWidth) {
     cur = new Date(cur.getFullYear(), cur.getMonth() + 1, 1);
   }
 
+  // Hour gridlines when zoomed in very far
+  if (pixelsPerDay >= 200) {
+    const pixelsPerHour = pixelsPerDay / 24;
+    const hourStep = pixelsPerHour >= 30 ? 1 : pixelsPerHour >= 15 ? 2 : pixelsPerHour >= 8 ? 4 : 6;
+    let hDay = new Date(minDate);
+    while (hDay <= maxDate) {
+      const dayX = dateToX(hDay);
+      for (let h = hourStep; h < 24; h += hourStep) {
+        const hx = dayX + (h / 24) * pixelsPerDay;
+        const hline = el('div', 'tl-grid-line tl-hour-grid');
+        hline.style.left   = hx + 'px';
+        hline.style.height = secH + 'px';
+        rowsArea.appendChild(hline);
+      }
+      hDay.setDate(hDay.getDate() + 1);
+    }
+  }
+
   const today = new Date();
   if (today >= minDate && today <= maxDate) {
     const tl = el('div', 'today-line');
@@ -471,17 +523,19 @@ function renderSection(parent, group, totalWidth) {
       bar.style.background = item.color || '#4a9eff';
       bar.style.color      = isLight(item.color || '#4a9eff') ? '#111' : '#fff';
 
-      const span = el('span');
-      if (!isAllDay(item) && pixelsPerDay >= 45) {
-        const parts = [item.name];
+      const nameSpan = el('span');
+      nameSpan.textContent = item.name;
+      bar.appendChild(nameSpan);
+
+      if (!isAllDay(item) && pixelsPerDay >= 35) {
         const ts = fmtTime12(item.startTime);
         const te = fmtTime12(item.endTime);
-        if (ts || te) parts.push(' · ' + (ts || 'start') + '–' + (te || 'end'));
-        span.textContent = parts.join('');
-      } else {
-        span.textContent = item.name;
+        if (ts || te) {
+          const timeSpan = el('span', 'tl-item-time');
+          timeSpan.textContent = ' · ' + (ts || '') + (ts && te ? '–' : '') + (te || '');
+          bar.appendChild(timeSpan);
+        }
       }
-      bar.appendChild(span);
 
       bar.addEventListener('click', ev => {
         ev.stopPropagation();
@@ -603,12 +657,10 @@ function makeTblCell(item, field, type, className, placeholder) {
   input.value = item[field] || '';
   input.className = className;
   if (placeholder) input.placeholder = placeholder;
-  const evt = (type === 'date' || type === 'time') ? 'change' : 'input';
-  input.addEventListener(evt, e => {
+  const handler = e => {
     item[field] = e.target.value;
     if (type === 'date' && item.start && item.end && item.start > item.end) {
       [item.start, item.end] = [item.end, item.start];
-      // update sibling inputs in the same row
       const row = td.closest('tr');
       if (row) {
         const dateInputs = row.querySelectorAll('input[type="date"]');
@@ -617,7 +669,9 @@ function makeTblCell(item, field, type, className, placeholder) {
       }
     }
     scheduleSave();
-  });
+  };
+  input.addEventListener('change', handler);
+  if (type === 'text') input.addEventListener('input', handler);
   td.appendChild(input);
   return td;
 }
@@ -702,14 +756,15 @@ function openModal(id) {
   const item = id ? items.find(i => i.id === id) : null;
 
   document.getElementById('modal-title').textContent = item ? 'Edit Item' : 'Add Item';
-  fName.value      = item?.name        || '';
-  fStart.value     = item?.start       || fmtDate(new Date());
-  fStartTime.value = item?.startTime   || '';
-  fEnd.value       = item?.end         || dayStr(7);
-  fEndTime.value   = item?.endTime     || '';
-  fCat.value       = item?.category    || '';
-  fColor.value     = item?.color       || '#4a9eff';
-  fDesc.value      = item?.description || '';
+  fName.value  = item ? item.name        : '';
+  fStart.value = item ? item.start      : fmtDate(new Date());
+  fEnd.value   = item ? item.end        : dayStr(7);
+  fCat.value   = item ? (item.category    || '') : '';
+  fColor.value = item ? (item.color       || '#4a9eff') : '#4a9eff';
+  fDesc.value  = item ? (item.description || '') : '';
+  // Time fields — explicitly set; empty string clears the input
+  fStartTime.value = item ? (item.startTime || '') : '';
+  fEndTime.value   = item ? (item.endTime   || '') : '';
   btnDelete.classList.toggle('hidden', !item);
 
   updateCatList();
@@ -725,6 +780,15 @@ function openModal(id) {
 function closeModal() {
   overlay.classList.add('hidden');
   editingId = null;
+  // Reset all fields so stale values don't bleed into next open
+  fName.value      = '';
+  fStart.value     = '';
+  fStartTime.value = '';
+  fEnd.value       = '';
+  fEndTime.value   = '';
+  fCat.value       = '';
+  fColor.value     = '#4a9eff';
+  fDesc.value      = '';
 }
 
 function saveModal() {
@@ -766,7 +830,7 @@ function deleteItem() {
 function zoom(factor) {
   const cx  = outer.scrollLeft + outer.clientWidth / 2 - SIDEBAR_W;
   const day = cx / pixelsPerDay;
-  pixelsPerDay = Math.max(2, Math.min(120, pixelsPerDay * factor));
+  pixelsPerDay = Math.max(2, Math.min(400, pixelsPerDay * factor));
   render();
   outer.scrollLeft = day * pixelsPerDay - outer.clientWidth / 2 + SIDEBAR_W;
 }
@@ -832,7 +896,7 @@ document.getElementById('import-file').addEventListener('change', e => {
           };
         });
       if (!newItems.length) { showImportStatus('error', 'No valid rows found.'); return; }
-      items = newItems;
+      items = normalizeItems(newItems);
       scheduleSave();
       render();
       showImportStatus('ok', `Imported ${newItems.length} item${newItems.length !== 1 ? 's' : ''}`);
@@ -996,7 +1060,7 @@ async function submitPassphrase() {
       const record = await fbGet(hash);
       if (record?.payload) {
         try {
-          items = await decryptPayload(record.payload, key);
+          items = normalizeItems(await decryptPayload(record.payload, key));
         } catch {
           // Key derivation succeeded but decryption failed → wrong passphrase
           document.getElementById('passphrase-submit').textContent = 'Unlock';
@@ -1010,7 +1074,7 @@ async function submitPassphrase() {
       // localStorage mode
       const stored = localStorage.getItem('tl_items');
       if (stored) {
-        try { items = JSON.parse(stored); } catch { items = []; }
+        try { items = normalizeItems(JSON.parse(stored)); } catch { items = []; }
       }
     }
 

@@ -199,6 +199,15 @@ body {
   z-index: 1;
 }
 
+.tl-hour-grid {
+  background: rgba(255,255,255,0.02);
+}
+
+.tl-hour-label {
+  font-size: 0.6rem;
+  color: #555;
+}
+
 .today-line {
   position: absolute;
   top: 0;
@@ -240,6 +249,12 @@ body {
   filter: brightness(1.15);
   box-shadow: 0 2px 8px rgba(0,0,0,0.5);
   z-index: 3;
+}
+.tl-item-time {
+  opacity: 0.7;
+  font-weight: 400;
+  font-size: 0.68rem;
+  flex-shrink: 0;
 }
 .tl-item span {
   overflow: hidden;
@@ -369,6 +384,7 @@ body {
   border: 1px solid #444;
   border-radius: 6px;
   color: #e0e0e0;
+  color-scheme: dark;
   padding: 7px 10px;
   font-size: 0.88rem;
   width: 100%;
