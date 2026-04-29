@@ -157,7 +157,7 @@ outer.addEventListener('touchmove', e => {
     const dist   = touchDist(e.touches);
     const factor = dist / pinchStartDist;
     const day    = (pinchScrollLeft + pinchCenterX - SIDEBAR_W) / pinchStartPPD;
-    pixelsPerDay = Math.max(2, Math.min(400, pinchStartPPD * factor));
+    pixelsPerDay = Math.max(2, Math.min(5000, pinchStartPPD * factor));
     render();
     outer.scrollLeft = day * pixelsPerDay - pinchCenterX + SIDEBAR_W;
     return;
@@ -862,7 +862,7 @@ function deleteItem() {
 function zoom(factor) {
   const cx  = outer.scrollLeft + outer.clientWidth / 2 - SIDEBAR_W;
   const day = cx / pixelsPerDay;
-  pixelsPerDay = Math.max(2, Math.min(400, pixelsPerDay * factor));
+  pixelsPerDay = Math.max(2, Math.min(5000, pixelsPerDay * factor));
   render();
   outer.scrollLeft = day * pixelsPerDay - outer.clientWidth / 2 + SIDEBAR_W;
 }
