@@ -205,6 +205,20 @@ function isAllDay(item) {
   return !item.startTime && !item.endTime;
 }
 
+// Convert "HH:MM" to fraction of day (0–1). Returns 0 if empty/invalid.
+function timeFrac(t) {
+  if (!t) return 0;
+  const [h, m] = t.split(':').map(Number);
+  return (h + m / 60) / 24;
+}
+
+// Returns 1 (end of day) if no time set, otherwise the fraction.
+function endTimeFrac(t) {
+  if (!t) return 1;
+  const [h, m] = t.split(':').map(Number);
+  return (h + m / 60) / 24;
+}
+
 // Ensure every item has startTime/endTime fields (backwards compat with old data)
 function normalizeItems(arr) {
   for (const item of arr) {
@@ -262,22 +276,35 @@ function computeDateRange() {
   }
 }
 
+// Compute a numeric value combining date + time for precise ordering/overlap checks
+function dateTimeVal(dateStr, timeStr) {
+  const d = parseDate(dateStr);
+  return d.getTime() + timeFrac(timeStr) * 86_400_000;
+}
+
 function packIntoRows(categoryItems) {
-  const sorted = [...categoryItems].sort((a, b) => parseDate(a.start) - parseDate(b.start));
+  const sorted = [...categoryItems].sort((a, b) => {
+    const diff = parseDate(a.start) - parseDate(b.start);
+    return diff !== 0 ? diff : timeFrac(a.startTime) - timeFrac(b.startTime);
+  });
   const rows = [];
   for (const item of sorted) {
-    const iStart = parseDate(item.start);
-    const iEnd   = parseDate(item.end);
+    const iStartVal = dateTimeVal(item.start, item.startTime);
+    const iEndVal   = dateTimeVal(item.end, item.endTime || null);
+    // For all-day items, end extends to end of day
+    const effectiveEnd = isAllDay(item)
+      ? parseDate(item.end).getTime() + 86_400_000
+      : iEndVal;
     let placed = false;
     for (const row of rows) {
-      if (iStart > row.endDate || daysBetween(row.endDate, iStart) > GAP_DAYS) {
+      if (iStartVal >= row.endVal) {
         row.items.push(item);
-        if (iEnd > row.endDate) row.endDate = iEnd;
+        if (effectiveEnd > row.endVal) row.endVal = effectiveEnd;
         placed = true;
         break;
       }
     }
-    if (!placed) rows.push({ endDate: iEnd, items: [item] });
+    if (!placed) rows.push({ endVal: effectiveEnd, items: [item] });
   }
   return rows.map(r => r.items);
 }
@@ -512,8 +539,13 @@ function renderSection(parent, group, totalWidth) {
     for (const item of row) {
       const s   = parseDate(item.start);
       const e   = parseDate(item.end);
-      const x   = dateToX(s);
-      const w   = Math.max(pixelsPerDay, (daysBetween(s, e) + 1) * pixelsPerDay);
+      const allDay = isAllDay(item);
+      // Sub-day positioning: offset start by startTime fraction, end by endTime fraction
+      const sf  = allDay ? 0 : timeFrac(item.startTime);
+      const ef  = allDay ? 1 : endTimeFrac(item.endTime);
+      const x   = dateToX(s) + sf * pixelsPerDay;
+      const endX = dateToX(e) + ef * pixelsPerDay;
+      const w   = Math.max(8, endX - x);
       const y   = 5 + rowIdx * ROW_H + ITEM_PAD_Y;
       const bar = el('div', 'tl-item');
       bar.style.left       = x + 'px';
